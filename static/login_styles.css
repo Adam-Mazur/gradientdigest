@@ -1,0 +1,105 @@
+body {
+    /* Background image stuff */
+    background-image: url("images/Background_graphic.svg");
+    background-position: top right;
+    background-repeat: no-repeat;
+    background-size: 110%;
+}
+
+.login-dialog-box {
+    width: 600px;
+    height: 400px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--white, #FBFBFB);
+    box-shadow: 10px 10px 10px 0px rgba(0, 0, 0, 0.15);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.dialog-title {
+    color: var(--black, #323232);
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    padding-top: 20px;
+    padding-left: 25px;
+    margin: 0;
+}
+
+.form {
+    text-align: left;
+    margin-top: 5px;
+    margin-left: 175px;
+}
+
+.text-field-label {
+    color: var(--black, #323232);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.text-field {
+    width: 250px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    border: 1px solid var(--black, #323232);
+    margin-top: 8px;
+    background-color: var(--white);
+    padding: 0;
+}
+
+.blue-button {
+    background-color: var(--blue);
+    width: 120px;
+    height: 35px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--blue, #0094FF);
+    text-align: center;
+    color: var(--white, #FBFBFB);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    border: none;
+}
+
+.blue-button:active {
+    background-color: #6ec3ff;
+}
+
+#login-button {
+    margin-top: 30px;
+    margin-left: 240px;
+}
+
+#sign-up-button {
+    margin-left: 240px;
+    margin-top: 13px;
+}
+
+.dialog-text {
+    color: var(--black, #323232);
+    text-align: center;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0;
+}
+
+.banner-text {
+    color: var(--black, #323232);
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 800;
+    line-height: normal;
+    text-align: center;
+    margin-top: 120px;
+    margin-bottom: 75px;
+}
