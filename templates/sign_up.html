@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block dialog %}
+<h1 class="dialog-title">Sign up</h1>
+<form action="/" method="POST" class="form">
+    <label for="email" class="text-field-label">Email</label><br>
+    <input type="text" id="email" name="email" class="text-field"><br>
+
+    <div style="padding-top: 25px;"></div>
+
+    <label for="password" class="text-field-label">Password</label><br>
+    <input type="text" id="password" name="password" class="text-field">
+
+    <div style="padding-top: 25px;"></div>
+
+    <label for="repeat-password" class="text-field-label">Repeat password</label><br>
+    <input type="text" id="repeat-password" name="repeat-password" class="text-field">
+</form>
+<a href="{{ url_for('interests') }}">
+    <button class="blue-button" id="sign-up-button2">Sign up</button>
+</a>
+{% endblock %}

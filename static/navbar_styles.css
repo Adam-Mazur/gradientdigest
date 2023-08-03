@@ -5,6 +5,7 @@
     --black: #323232;
     --grey: #F6F6F6;
     --dark-grey: #E4E4E4;
+    --dark-blue: #0066FF;
 }
 
 body {
@@ -39,7 +40,7 @@ li.navbar-element{
 }
 
 li.navbar-element2 {
-    color: #3042DE;
+    color: var(--dark-blue);
 }
 
 li.navbar-element3 {
@@ -47,7 +48,7 @@ li.navbar-element3 {
 }
 
 li.navbar-element:hover {
-    background-color: #3042DE;
+    background-color: var(--dark-blue);
     color: var(--white);
 }
 

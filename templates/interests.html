@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block dialog %}
+<h1 class="dialog-title">Tell us about yourself</h1>
+<div style="padding-top: 47px;"></div>
+<p class="dialog-text">
+    What areas of research are you interested in?
+</p>
+<div style="padding-top: 20px;"></div>
+<div class="chip-row">
+    <label class="chip">
+        <input type="checkbox">
+        <p>NLP</p>
+    </label>
+    <label class="chip">
+        <input type="checkbox">
+        <p>Transformers</p>
+    </label>
+    <label class="chip">
+        <input type="checkbox">
+        <p>Neural networks</p>
+    </label>
+</div>
+<div class="chip-row">
+    <label class="chip">
+        <input type="checkbox">
+        <p>Robotics</p>
+    </label>
+    <label class="chip">
+        <input type="checkbox">
+        <p>Deep learning</p>
+    </label>
+    <label class="chip">
+        <input type="checkbox">
+        <p>Optimization</p>
+    </label>
+</div>
+<div class="chip-row">
+    <label class="chip">
+        <input type="checkbox">
+        <p>Computer vision</p>
+    </label>
+    <label class="chip">
+        <input type="checkbox">
+        <p>Supervised learning</p>
+    </label>
+</div>
+<div class="chip-row">
+    <label class="chip">
+        <input type="checkbox">
+        <p>Unsupervised learning</p>
+    </label>
+    <label class="chip">
+        <input type="checkbox">
+        <p>Reinforcement learning</p>
+    </label>
+</div>
+<a>
+    <button class="blue-button" id="continue-button">Continue</button>
+</a>
+{% endblock %}
