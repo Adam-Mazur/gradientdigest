@@ -13,3 +13,7 @@ def sign_up():
 @app.route('/interests')
 def interests():
     return render_template("interests.html")
+
+@app.route('/home-page')
+def home_page():
+    return render_template("index.html")
