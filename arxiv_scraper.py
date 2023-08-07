@@ -1,5 +1,5 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import TweetTokenizer
 from nltk.tag import pos_tag
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
@@ -14,8 +14,10 @@ logging.basicConfig(
     level=logging.DEBUG,
     filename='log.txt',
     filemode='a',
-    format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s:%(message)s'
+    format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
 )
+
+# Ignoring scikit learn warnings from the tf-idf vectorizer
 warnings.filterwarnings("ignore")
 
 def get_papers(starting_date, debug=False):
@@ -23,7 +25,7 @@ def get_papers(starting_date, debug=False):
     [strating_date] needs to have all the parameters (year, month, day, hour,...) and include tzinfo."""
     BASE_URL = 'http://export.arxiv.org/api/query?search_query='
     SEARCH_CATEGORIES = 'cat:cs.CV+OR+cat:cs.LG+OR+cat:cs.CL+OR+cat:cs.AI+OR+cat:cs.NE+OR+cat:cs.RO'
-    MAX_RESULTS = 25
+    MAX_RESULTS = 10
 
     def try_again(link):
         logging.error("There was a problem with downloading the pdf, trying again...")
@@ -85,13 +87,12 @@ def get_papers(starting_date, debug=False):
             
             # Converting the pdf to text
             try:
-                logging.info(f"Attempting to convert the pdf from this link: {link} to text")
                 with fitz.open("pdf", response.content) as document:
                     text = chr(12).join([page.get_text() for page in document])
                 collection.append(text)
-                logging.info(f"Succesfully converted the pdf from this link: {link}, sample text: {text[:200]}".replace('\n', ' '))
+                logging.info(f"Succesfully converted the pdf from this link: {link}")
             except:
-                logging.error(f"Couldn't convert the pdf from this link: {link} to text")
+                logging.error(f"Couldn't convert the pdf from this link: {link}")
 
         if debug: break
         start_index += MAX_RESULTS
@@ -99,18 +100,20 @@ def get_papers(starting_date, debug=False):
     def get_wordnet_pos(word):
         """Map POS tag to first character lemmatize() accepts"""
         tag = pos_tag([word])[0][1][0].upper()
+        # TODO: Make sure this works
         tag_dict = {
             "J": wordnet.ADJ,
             "N": wordnet.NOUN,
             "V": wordnet.VERB,
-            "R": wordnet.ADV
+            "R": wordnet.ADV,
         }
         return tag_dict.get(tag, wordnet.NOUN)
     
     lemmatizer = WordNetLemmatizer()
-    def tokenizer(text):
+    tokenizer = TweetTokenizer()
+    def text_normalization(text):
         processed = []
-        text_tokens = word_tokenize(text)                
+        text_tokens = tokenizer.tokenize(text)                
         for token in text_tokens:
             if not any(map(lambda x: x.isalpha(), token)):
                 continue
@@ -124,8 +127,7 @@ def get_papers(starting_date, debug=False):
     vectorizer = TfidfVectorizer(
         input='content',
         encoding='str',
-        strip_accents='unicode',
-        tokenizer=tokenizer,
+        tokenizer=text_normalization,
         lowercase=True,
         use_idf=True,
         smooth_idf=True,
@@ -136,8 +138,6 @@ def get_papers(starting_date, debug=False):
     if len(collection) == 0:
         logging.error(f"Downloading the pdf's from the arXiv API was unsuccessful. Starting date: {starting_date}")
         return
-    else:
-        vector = vectorizer.fit_transform(collection)
+    vector = vectorizer.fit_transform(collection)
     
     if debug: return vector, vectorizer
-    

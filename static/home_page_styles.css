@@ -3,7 +3,7 @@ body {
     background-color: var(--white);
 }
 
-ul.navbar {
+.navbar {
     /* This removes the dots with lists. */
     list-style-type: none;
     margin: 0;
@@ -18,11 +18,12 @@ ul.navbar {
     display: flex;
     flex-direction: row;
     justify-content: end;
+    align-items: center;
 }
 
-li.navbar-element{
+.navbar-element{
     /* Makes it horizontal */
-    display: inline-table;
+    display: inline-block;
     padding: 21px 17.5px;
     color: var(--black);
     font-size: 15px;
@@ -31,12 +32,12 @@ li.navbar-element{
     line-height: normal;
 }
 
-li.navbar-element2 {
+.navbar-element:last-child {
     color: var(--dark-blue);
     margin-right: 17.5px;
 }
 
-li.navbar-element:hover {
+.navbar-element:hover {
     background-color: var(--dark-blue);
     color: var(--white);
 }
@@ -44,7 +45,6 @@ li.navbar-element:hover {
 .logo {
     width: 180px;
     height: 44.85px;
-    flex-shrink: 0;
     float: left;
     margin-left: 18px;
     margin-top: 7px;
@@ -59,14 +59,12 @@ li.navbar-element:hover {
 }
 
 #search {
-    display: inline-table;
-    width: 207px;
-    height: 31px;
-    flex-shrink: 0;
+    display: inline-block;
+    width: 250px;
+    height: 35px;
     border-radius: 8px;
     border: 1px solid var(--black, #323232);
     margin-right: 17.5px;
-    margin-top: 13px;
     background-image: url("images/Search_icon.svg");
     background-repeat: no-repeat;
     background-size: 22px 22px;
@@ -78,6 +76,7 @@ li.navbar-element:hover {
     font-style: normal;
     font-weight: 300;
     line-height: normal;
+    box-sizing: border-box;
 }
 
 #search::placeholder {
@@ -119,11 +118,12 @@ li.navbar-element:hover {
 .article {
     border-radius: 15px;
     background: var(--grey, #F6F6F6);
-    height: 130px;
+    height: 140px;
     background-image: url('images/Document_icon.svg');
     background-repeat: no-repeat;
     padding-left: 160px;
     padding-top: 10px;
+    box-sizing: border-box;
 }
 
 .title-row {
@@ -139,6 +139,7 @@ li.navbar-element:hover {
     font-style: normal;
     font-weight: 500;
     line-height: normal;
+    flex-shrink: 0;
 }
 
 .article-meta {
@@ -149,12 +150,14 @@ li.navbar-element:hover {
     line-height: normal;
     margin-left: 5px;
     margin-right: 10px;
+    flex-shrink: 0;
 }
 
 .indicator {
     width: 10px;
     height: 10px;
     border-radius: 10px;
+    flex-shrink: 0;
 }
 
 .authors {
@@ -173,7 +176,8 @@ li.navbar-element:hover {
     font-style: normal;
     font-weight: 300;
     line-height: normal;
-    margin-right: 100px;
     margin-top: 5px;
     margin-bottom: 0;
+    /* Maximum width */
+    width: 740px;
 }

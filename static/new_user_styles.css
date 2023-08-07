@@ -8,7 +8,7 @@ body {
     background-size: 110%;
 }
 
-ul.navbar {
+.navbar {
     /* This removes the dots with lists. */
     list-style-type: none;
     margin: 0;
@@ -22,9 +22,9 @@ ul.navbar {
     text-align: right;
 }
 
-li.navbar-element{
+.navbar-element{
     /* Makes it horizontal */
-    display: inline-table;
+    display: inline-block;
     padding: 21px 17.5px;
     color: var(--black);
     font-size: 15px;
@@ -33,15 +33,16 @@ li.navbar-element{
     line-height: normal;
 }
 
-li.navbar-element2 {
+/* Select last two cilds */
+.navbar-element:nth-last-child(-n+2) {
     color: var(--dark-blue);
 }
 
-li.navbar-element3 {
+.navbar-element:last-child {
     margin-right: 17.5px;
 }
 
-li.navbar-element:hover {
+.navbar-element:hover {
     background-color: var(--dark-blue);
     color: var(--white);
 }
@@ -49,7 +50,6 @@ li.navbar-element:hover {
 .logo {
     width: 180px;
     height: 44.85px;
-    flex-shrink: 0;
     float: left;
     margin-left: 18px;
     margin-top: 7px;
@@ -63,12 +63,14 @@ li.navbar-element:hover {
 .login-dialog-box {
     width: 600px;
     height: 400px;
-    flex-shrink: 0;
     border-radius: 10px;
     background: var(--white, #FBFBFB);
     box-shadow: 10px 10px 10px 0px rgba(0, 0, 0, 0.15);
     margin-left: auto;
     margin-right: auto;
+    /* Makes it exactly 600px by 400px with padding and border */
+    box-sizing: border-box;
+    padding-top: 20px;
 }
 
 .dialog-title {
@@ -77,41 +79,47 @@ li.navbar-element:hover {
     font-style: normal;
     font-weight: 700;
     line-height: normal;
-    padding-top: 20px;
-    padding-left: 25px;
-    margin: 0;
+    margin-left: 25px;
+    margin-bottom: 5px;
 }
 
 .form {
     text-align: left;
-    margin-top: 5px;
-    margin-left: 175px;
+    /* Centering horizontally */
+    width: min-content;
+    margin: 0 auto;
 }
 
-.text-field-label {
+.form label {
     color: var(--black, #323232);
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+    margin: 0;
 }
 
-.text-field {
+.form input {
     width: 250px;
-    height: 38px;
-    flex-shrink: 0;
+    height: 40px;
     border-radius: 8px;
     border: 1px solid var(--black, #323232);
     margin-top: 8px;
     background-color: var(--white);
     padding: 0;
+    /* Makes it exactly 250px by 40px with border and padding */
+    box-sizing: border-box;
+}
+
+/* Removes underline from links */
+a {
+    text-decoration: none;
 }
 
 .blue-button {
     background-color: var(--blue);
     width: 120px;
     height: 35px;
-    flex-shrink: 0;
     border-radius: 8px;
     background: var(--blue, #0094FF);
     text-align: center;
@@ -121,6 +129,9 @@ li.navbar-element:hover {
     font-weight: 400;
     line-height: normal;
     border: none;
+    /* Centering */
+    margin: 0 auto;
+    display: block;
 }
 
 .blue-button:active {
@@ -129,22 +140,18 @@ li.navbar-element:hover {
 
 #login-button {
     margin-top: 30px;
-    margin-left: 240px;
 }
 
 #sign-up-button {
-    margin-left: 240px;
     margin-top: 13px;
 }
 
 #sign-up-button2 {
-    margin-left: 240px;
     margin-top: 36px;
 }
 
 #continue-button {
-    margin-left: 240px;
-    margin-top: 30px;
+    margin-top: 25px;
 }
 
 .dialog-text {
@@ -169,24 +176,27 @@ li.navbar-element:hover {
 }
 
 .chip-row {
-    margin-left: 130px;
+    margin: 0 auto;
+    width: max-content;
     display: flex;
     flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
 }
 
-.chip input {
+.chip-row label input {
     display: none;
 }
 
-.chip input + p {
+.chip-row label input + span {
     display: inline-flex;
     padding: 5px 20px;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
+    /* Change cursor to make it feel like a button */
     cursor: pointer;
     border-radius: 20px;
     background: var(--orange, #FF5C00);
+    /* Cannot select text */
     user-select: none;
     color: var(--black, #323232);
     font-size: 14px;
@@ -195,11 +205,9 @@ li.navbar-element:hover {
     line-height: normal;
     margin-top: 0;
     margin-bottom: 18px;
-    margin-right: 15px;
-    margin-left: 0;
 }
 
-.chip input:checked + p {
+.chip-row label input:checked + span {
     color: var(--white);
     background-color: var(--black);
 }
