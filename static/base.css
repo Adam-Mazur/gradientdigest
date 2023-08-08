@@ -11,3 +11,47 @@
 * {
     font-family: 'Roboto', sans-serif;
 }
+
+.flashes {
+    position: fixed;
+    left: 30px;
+    bottom: 30px;
+    padding: 15px 20px;
+    list-style-type: none;
+    border-radius: 8px;
+    background: var(--black);
+    text-align: center;
+    color: var(--white, #FBFBFB);
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    border: none;
+    /* Centering */
+    margin: 0 auto;
+    display: block;
+    /* Animation */
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 5s;
+    animation: fadein 0.5s, fadeout 0.5s 5s;
+    animation-fill-mode: forwards;
+}
+
+@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}

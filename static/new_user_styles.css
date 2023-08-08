@@ -26,19 +26,20 @@ body {
     /* Makes it horizontal */
     display: inline-block;
     padding: 21px 17.5px;
-    color: var(--black);
+    color: var(--dark-blue);
     font-size: 15px;
     font-style: normal;
     font-weight: 500;
     line-height: normal;
+    text-decoration: none;
 }
 
-/* Select last two cilds */
-.navbar-element:nth-last-child(-n+2) {
-    color: var(--dark-blue);
+
+.navbar > .navbar-element {
+    color: var(--black);
 }
 
-.navbar-element:last-child {
+a:last-child {
     margin-right: 17.5px;
 }
 
@@ -106,8 +107,15 @@ body {
     border: 1px solid var(--black, #323232);
     margin-top: 8px;
     background-color: var(--white);
-    padding: 0;
+    padding: 5px;
     /* Makes it exactly 250px by 40px with border and padding */
+    box-sizing: border-box;
+    /* Font stuff */
+    color: var(--black, #323232);
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 300;
+    line-height: normal;
     box-sizing: border-box;
 }
 
@@ -116,8 +124,7 @@ a {
     text-decoration: none;
 }
 
-.blue-button {
-    background-color: var(--blue);
+.blue-button, #login_submit, #sign_up_submit {
     width: 120px;
     height: 35px;
     border-radius: 8px;
@@ -134,11 +141,11 @@ a {
     display: block;
 }
 
-.blue-button:active {
+.blue-button:active, #login_submit:active, #sign_up_submit:active {
     background-color: #6ec3ff;
 }
 
-#login-button {
+#login_submit {
     margin-top: 30px;
 }
 
@@ -146,7 +153,7 @@ a {
     margin-top: 13px;
 }
 
-#sign-up-button2 {
+#sign_up_submit {
     margin-top: 36px;
 }
 

@@ -1,21 +1,20 @@
 {% extends "new_user.html" %}
 {% block dialog %}
 <span class="dialog-title">Sign up</span>
-<form action="/" method="POST" class="form">
+<form action="/sign-up" method="POST" class="form">
+    {{ sign_up_form.hidden_tag() }}
     <label for="email" class="text-field-label">Email</label><br>
-    <input type="text" id="email" name="email" class="text-field"><br>
+    {{ sign_up_form.email() }}
 
     <div style="padding-top: 25px;"></div>
 
     <label for="password" class="text-field-label">Password</label><br>
-    <input type="text" id="password" name="password" class="text-field">
+    {{ sign_up_form.password() }}
 
     <div style="padding-top: 25px;"></div>
 
     <label for="repeat-password" class="text-field-label">Repeat password</label><br>
-    <input type="text" id="repeat-password" name="repeat-password" class="text-field">
+    {{ sign_up_form.repeat_password() }}
+    {{ sign_up_form.sign_up_submit() }}
 </form>
-<a href="{{ url_for('interests') }}">
-    <button class="blue-button" id="sign-up-button2">Sign up</button>
-</a>
 {% endblock %}

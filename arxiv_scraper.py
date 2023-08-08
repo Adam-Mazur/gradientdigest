@@ -9,7 +9,7 @@ import fitz
 import feedparser
 import requests
 import logging
-
+# TODO: Delete this
 logging.basicConfig(
     level=logging.DEBUG,
     filename='log.txt',

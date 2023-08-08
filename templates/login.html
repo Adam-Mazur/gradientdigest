@@ -1,16 +1,16 @@
 {% extends "new_user.html" %}
 {% block dialog %}
 <span class="dialog-title">Login</span>
-<form action="/" method="POST" class="form">
+<form action="/login" method="post" class="form">
+    {{ login_form.hidden_tag() }}
     <label for="email">Email</label><br>
-    <input type="text" id="email" name="email"><br>
-
+    {{ login_form.email() }}
     <div style="padding-top: 25px;"></div>
-
-    <label for="password">Password</label><br>
-    <input type="text" id="password" name="password">
+    <label for="password">Password</label>
+    <br>
+    {{ login_form.password() }}
+    {{ login_form.login_submit() }}
 </form>
-<button class="blue-button" id="login-button">Login</button>
 <div style="padding-top: 35px;"></div>
 <p class="dialog-text">
     Don’t have an account yet?

@@ -1,4 +1,6 @@
 /venv
 /__pycache__
 log.txt
-test.ipynb
+arxiv_test.ipynb
+config.json
+/instance
