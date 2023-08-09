@@ -4,3 +4,4 @@ log.txt
 arxiv_test.ipynb
 config.json
 /instance
+/flask_session

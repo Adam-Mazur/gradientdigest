@@ -1,7 +1,7 @@
 {% extends "new_user.html" %}
 {% block dialog %}
 <span class="dialog-title">Login</span>
-<form action="/login" method="post" class="form">
+<form action="/login" method="POST" class="form">
     {{ login_form.hidden_tag() }}
     <label for="email">Email</label><br>
     {{ login_form.email() }}

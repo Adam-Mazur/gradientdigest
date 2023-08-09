@@ -124,7 +124,7 @@ a {
     text-decoration: none;
 }
 
-.blue-button, #login_submit, #sign_up_submit {
+.blue-button, #login_submit, #sign_up_submit, #interests_submit {
     width: 120px;
     height: 35px;
     border-radius: 8px;
@@ -141,7 +141,7 @@ a {
     display: block;
 }
 
-.blue-button:active, #login_submit:active, #sign_up_submit:active {
+.blue-button:active, #login_submit:active, #sign_up_submit:active, #interests_submit:active {
     background-color: #6ec3ff;
 }
 
@@ -157,7 +157,7 @@ a {
     margin-top: 36px;
 }
 
-#continue-button {
+#interests_submit {
     margin-top: 25px;
 }
 

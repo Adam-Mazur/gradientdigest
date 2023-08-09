@@ -1,9 +1,10 @@
-from flask_login import LoginManager, login_required, login_user, logout_user
-from flask import Flask, render_template, redirect, url_for, flash
-from wtforms import StringField, SubmitField
+from flask_login import LoginManager, login_required, login_user, logout_user, user_logged_out
+from flask import Flask, render_template, redirect, url_for, flash, session
+from wtforms import StringField, SubmitField, BooleanField
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from database import db, User, Paper
+from flask_session import Session
 import logging
 import bcrypt
 import json
@@ -20,19 +21,25 @@ logging.basicConfig(
     # filemode='a',
     # format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
 )
+# Creating server session to store account info of users that didn't complete the sign up
+server_session = Session(app)
 
 db.init_app(app)
-
 
 # ---------------------------------------------------------
 # Flask-login stuff
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "login"
 
 @login_manager.user_loader
 def user_loader(user_id):
     return User.query.get(user_id)
 
+# Remove session variables when logging out, it prevents someone from using a loophole to login without password through interests page
+@user_logged_out.connect
+def remove_session(*e, **extra):
+    session['email'] = ""
 
 # ---------------------------------------------------------
 # Forms
@@ -53,6 +60,26 @@ class SignUpForm(FlaskForm):
             return True
         return False
 
+class InterestsForm(FlaskForm):
+    field_nlp = BooleanField("NLP")
+    field_transformers = BooleanField("Transformers")
+    field_neural_networks = BooleanField("Neural networks")
+    field_robotics = BooleanField("Robotics")
+    field_deep_learning = BooleanField("Deep learning")
+    field_optimization = BooleanField("Optimization")
+    field_computer_vision = BooleanField("Computer vision")
+    field_supervised_learning = BooleanField("Supervised learning")
+    field_unsupervised_learning = BooleanField("Unsupervised learning")
+    field_reinforcement_learning = BooleanField("Reinforcement learning")
+    interests_submit = SubmitField("Submit")
+
+    def validate(self, **kwargs):
+        validators = FlaskForm.validate(self)
+        # At least one field must be selected 
+        attribures = list(map(lambda x: getattr(self, x), dir(self)))
+        if validators and any(map(lambda x: isinstance(x, BooleanField) and x.data, attribures)):
+            return True
+        return False
 
 # ---------------------------------------------------------
 # Endpoints
@@ -61,17 +88,20 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.get(form.email.data)
-        if user:
-            if bcrypt.checkpw(form.password.data.encode('utf8'), user.password):
-                user.auth = True
-                db.session.commit()
-                login_user(user, remember=True)
-                flash("Logged in successfully")
-                return redirect(url_for('home_page'))
-            else:
-                flash("The password is wrong")
-        else:
+        if not user:
             flash("Couldn't find your account")
+        elif not bcrypt.checkpw(form.password.data.encode('utf8'), user.password):
+            flash("Incorrect password")
+        elif len(user.vector) == 0:
+            flash("You haven't completed the sign up yet")
+            session['email'] = form.email.data
+            return redirect(url_for('interests'))
+        else:
+            user.auth = True
+            db.session.commit()
+            login_user(user, remember=True)
+            flash("Logged in successfully")
+            return redirect(url_for('home_page'))
 
     return render_template("login.html", login_form=form)
 
@@ -89,6 +119,7 @@ def sign_up():
         try:
             db.session.commit()
             flash("Successfully added a new user")
+            session['email'] = form.email.data
             return redirect(url_for('interests'))
         except:
             db.session.rollback()
@@ -96,9 +127,34 @@ def sign_up():
 
     return render_template("sign_up.html", sign_up_form=form)
 
-@app.route('/interests')
+@app.route('/interests', methods=['GET', 'POST'])
 def interests():
-    return render_template("interests.html")
+    if not session['email']:
+        flash("You cannot access this page")
+        return redirect(url_for('login')) 
+    form = InterestsForm()
+    if form.validate_on_submit():
+        user = User.query.get(session['email'])
+        # Getting data from the form to the database
+        temp_dict = dict()
+        for attr in map(lambda x: getattr(form, x), dir(form)):
+            if not isinstance(attr, BooleanField):
+                continue
+            # TODO: add text normalization
+            temp_dict[attr.label] = attr.data
+
+        user.vector = temp_dict
+        try:
+            db.session.commit()
+            flash("Updated interests")
+            login_user(user, remember=True)
+            session['email'] = ""
+            return redirect(url_for('home_page'))
+        except:
+            db.session.rollback()
+            flash("Something went wrong, try again")
+
+    return render_template("interests.html", interests_form=form)
 
 @app.route('/')
 @login_required
@@ -108,5 +164,6 @@ def home_page():
 @app.route('/logout')
 @login_required
 def logout():
+    logout_user()
     flash("Logged out successfully")
     return redirect(url_for("login"))

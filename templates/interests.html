@@ -6,55 +6,56 @@
     What areas of research are you interested in?
 </p>
 <div style="padding-top: 20px;"></div>
-<div class="chip-row">
-    <label>
-        <input type="checkbox">
-        <span>NLP</span>
-    </label>
-    <label>
-        <input type="checkbox">
-        <span>Transformers</span>
-    </label>
-    <label>
-        <input type="checkbox">
-        <span>Neural networks</span>
-    </label>
-</div>
-<div class="chip-row">
-    <label>
-        <input type="checkbox">
-        <span>Robotics</span>
-    </label>
-    <label>
-        <input type="checkbox">
-        <span>Deep learning</span>
-    </label>
-    <label>
-        <input type="checkbox">
-        <span>Optimization</span>
-    </label>
-</div>
-<div class="chip-row">
-    <label>
-        <input type="checkbox">
-        <span>Computer vision</span>
-    </label>
-    <label>
-        <input type="checkbox">
-        <span>Supervised learning</span>
-    </label>
-</div>
-<div class="chip-row">
-    <label>
-        <input type="checkbox">
-        <span>Unsupervised learning</span>
-    </label>
-    <label>
-        <input type="checkbox">
-        <span>Reinforcement learning</span>
-    </label>
-</div>
-<a>
-    <button class="blue-button" id="continue-button">Continue</button>
-</a>
+<form action="/interests" method="POST">
+    {{ interests_form.hidden_tag() }}
+    <div class="chip-row">
+        <label>
+            {{ interests_form.field_nlp() }}
+            <span>NLP</span>
+        </label>
+        <label>
+            {{ interests_form.field_transformers() }}
+            <span>Transformers</span>
+        </label>
+        <label>
+            {{ interests_form.field_neural_networks() }}
+            <span>Neural networks</span>
+        </label>
+    </div>
+    <div class="chip-row">
+        <label>
+            {{ interests_form.field_robotics() }}
+            <span>Robotics</span>
+        </label>
+        <label>
+            {{ interests_form.field_deep_learning() }}
+            <span>Deep learning</span>
+        </label>
+        <label>
+            {{ interests_form.field_optimization() }}
+            <span>Optimization</span>
+        </label>
+    </div>
+    <div class="chip-row">
+        <label>
+            {{ interests_form.field_computer_vision() }}
+            <span>Computer vision</span>
+        </label>
+        <label>
+            {{ interests_form.field_supervised_learning() }}
+            <span>Supervised learning</span>
+        </label>
+    </div>
+    <div class="chip-row">
+        <label>
+            {{ interests_form.field_unsupervised_learning() }}
+            <span>Unsupervised learning</span>
+        </label>
+        <label>
+            {{ interests_form.field_reinforcement_learning() }}
+            <span>Reinforcement learning</span>
+        </label>
+    </div>
+    {{ interests_form.interests_submit() }}
+</form>
 {% endblock %}
