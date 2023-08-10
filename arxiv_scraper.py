@@ -3,6 +3,7 @@ from nltk.tokenize import TweetTokenizer
 from nltk.tag import pos_tag
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import wordnet
+from database import db, Paper
 import dateutil.parser
 import warnings
 import fitz
@@ -26,6 +27,7 @@ def get_papers(starting_date, debug=False):
     BASE_URL = 'http://export.arxiv.org/api/query?search_query='
     SEARCH_CATEGORIES = 'cat:cs.CV+OR+cat:cs.LG+OR+cat:cs.CL+OR+cat:cs.AI+OR+cat:cs.NE+OR+cat:cs.RO'
     MAX_RESULTS = 10
+    MAX_VECTOR_LENGTH = 1000
 
     def try_again(link):
         logging.error("There was a problem with downloading the pdf, trying again...")
@@ -39,8 +41,31 @@ def get_papers(starting_date, debug=False):
             logging.error(f"Couldn't download the pdf from this link: {link}")
             return -1
         return response
+    
+    def check_schema(structure, article):
+        """"Checks if the API response has a valid structure"""
+        if isinstance(structure, dict):
+            for key, item in structure.items():
+                if key not in article:
+                    logging.error(f"The structure of the API response is invalid. The element: \'{key}\' not found")
+                    return False
+                if type(item) != type:
+                    return check_schema(item, article[key])
+                if type(article[key]) != item:
+                    logging.error(f"The structure of the API response is invalid. The type of item article[\'{key}\'] is uncorrect")
+                    return False
+                return True
+        else:
+            for i, item in enumerate(structure):
+                if type(item) != type:
+                    return check_schema(item, article[i])
+                if type(article[i]) != item:
+                    logging.error(f"The structure of the API response is invalid. The type of item article[\'{key}\'] is uncorrect")
+                    return False
+                return True
 
     collection = []
+    ids = []
     start_index = 0
     not_last = True
     logging.info(f"Downloading the newest papers from the arXiv API since {starting_date} in {'normal mode' if not debug else 'debug mode'}")
@@ -55,33 +80,44 @@ def get_papers(starting_date, debug=False):
             break
 
         for article in api_response['entries']:
-            # Comparing the updated date of the article and the [starting_date]
-            if 'updated' not in article:
-                logging.error(f"\'updated\' key wasn't in the article dictionary, meaning that the response from the API was invalid. Search query: {url}")
+            # Checking the schema of the API response
+            api_structure = {
+                'updated': str,
+                'published': str,
+                'title': str,
+                'summary': str,
+                'authors': [{'name': str}, {'name': str}, {'name': str}],
+                'links': [{'href': str}, {'href': str}]
+            }
+            if not check_schema(api_structure, article):
                 continue
-            date = dateutil.parser.isoparse(article['updated'])
-            if date < starting_date:
+
+            # Comparing the updated date of the article and the [starting_date]
+            updated_date = dateutil.parser.isoparse(article['updated'])
+            if updated_date < starting_date:
                 not_last = False
                 break
 
-            # Getting the link to the pdf
-            if 'links' not in article or len(article['links']) < 2 or 'href' not in article['links'][1]:
-                logging.error(f"Couldn't get the link from the API response, search query: {url}")
-                continue
-            link = article['links'][1]['href']
-            logging.info(f"The link to the pdf from the arXiv API: {link}")
+            # Getting the data from the API response
+            pdf_link = article['links'][1]['href']
+            site_link = article['links'][0]['href']
+            submited_date = dateutil.parser.isoparse(article['published'])
+            title = article['title']
+            abstract = article['summary']
+            authors = ", ".join(map(lambda x: x['name'], article['authors']))
+            logging.info(f"The link to the pdf from the arXiv API: {pdf_link}")
 
             # Downloading the pdf
             try:
-                response = requests.get(link)
+                response = requests.get(pdf_link)
                 logging.info(f"Attempted to download the pdf, status code: {response.status_code}")
             except:
-                response = try_again(link)
+                response = try_again(pdf_link)
                 if response == -1:
                     continue
         
             if response.status_code != 200:
-                response = try_again(link)
+                response = try_again(pdf_link)
                 if response == -1:
                     continue
             
@@ -90,9 +126,31 @@ def get_papers(starting_date, debug=False):
                 with fitz.open("pdf", response.content) as document:
                     text = chr(12).join([page.get_text() for page in document])
                 collection.append(text)
-                logging.info(f"Succesfully converted the pdf from this link: {link}")
+                logging.info(f"Succesfully converted the pdf from this link: {pdf_link}")
             except:
-                logging.error(f"Couldn't convert the pdf from this link: {link}")
+                logging.error(f"Couldn't convert the pdf from this link: {pdf_link}")
+                continue
+
+            # Creating a new database entry
+            if not debug:
+                new_paper = Paper(
+                    title=title,
+                    authors=authors,
+                    abstract=abstract,
+                    pdf_link=pdf_link,
+                    site_link=site_link,
+                    popularity=5,
+                    vector = dict(),
+                    updated_date=updated_date,
+                    submited_date=submited_date
+                )
+                db.session.add(new_paper)
+                try:
+                    db.session.commit()
+                    ids.append(new_paper.id)
+                except:
+                    logging.error(f"Couldn't add a new paper to the database, link: {site_link}")
+                    db.session.rollback()
 
         if debug: break
         start_index += MAX_RESULTS
@@ -138,6 +196,17 @@ def get_papers(starting_date, debug=False):
     if len(collection) == 0:
         logging.error(f"Downloading the pdf's from the arXiv API was unsuccessful. Starting date: {starting_date}")
         return
-    vector = vectorizer.fit_transform(collection)
     
-    if debug: return vector, vectorizer
+    result = vectorizer.fit_transform(collection)
+    if debug: return result, vectorizer
+
+    result = result.toarray()
+    for i, id in enumerate(ids):
+        paper = Paper.query.get(id)
+        vector = {}
+        for a,b in zip(vectorizer.get_feature_names_out(), result[i]):
+            vector[a] = b
+        vector = dict(sorted(vector.items(), key=lambda x: x[1], reverse=True)[:MAX_VECTOR_LENGTH])
+        paper.vector = vector
+    
+    db.session.commit()

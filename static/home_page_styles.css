@@ -125,6 +125,7 @@ body {
     padding-left: 160px;
     padding-top: 10px;
     box-sizing: border-box;
+    margin-bottom: 15px;
 }
 
 .title-row {
@@ -141,6 +142,11 @@ body {
     font-weight: 500;
     line-height: normal;
     flex-shrink: 0;
+    /* TODO: Remove hardcoded value */
+    max-width: 547px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .article-meta {
@@ -169,6 +175,7 @@ body {
     line-height: normal;
     margin-top: 0;
     margin-bottom: 0;
+    /* TODO: add text overflow here */
 }
 
 .abstract {
@@ -181,4 +188,9 @@ body {
     margin-bottom: 0;
     /* Maximum width */
     width: 740px;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

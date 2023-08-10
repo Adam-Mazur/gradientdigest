@@ -1,7 +1,7 @@
 /venv
 /__pycache__
 log.txt
-arxiv_test.ipynb
+**.ipynb
 config.json
 /instance
 /flask_session

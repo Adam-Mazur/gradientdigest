@@ -17,8 +17,8 @@ class Paper(db.Model):
     site_link = db.Column(db.String(40), nullable=False)
     popularity = db.Column(db.Integer, index=True)
     vector = db.Column(db.PickleType, nullable=False)
-    updated_date = db.Column(db.Date, index=True, nullable=False)
-    submited_date = db.Column(db.Date, index=True)
+    updated_date = db.Column(db.DateTime, index=True, nullable=False)
+    submited_date = db.Column(db.DateTime, index=True)
 
 class User(db.Model):
     email = db.Column(db.String(320), primary_key=True)
