@@ -5,12 +5,15 @@ from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from database import db, User, Paper
 from flask_session import Session
-# from arxiv_scraper import get_papers
-# from datetime import datetime, timezone
+from arxiv_scraper import get_papers
+from datetime import datetime, timedelta, timezone
+from apscheduler.schedulers.background import BackgroundScheduler
 from recommender import update_user_profile, cosine
 import logging
 import bcrypt
 import json
+import atexit
+import os
 
 app = Flask(__name__)
 
@@ -19,13 +22,12 @@ app = Flask(__name__)
 app.config.from_file('config.json', load=json.load)
 logging.basicConfig(
     level=logging.DEBUG,
-    # TODO: Uncomment that for production
-    # filename='log.txt',
-    # filemode='a',
-    # format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
+    filename='log.txt',
+    filemode='a',
+    format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
 )
 # Creating server session to store account info of users that didn't complete the sign up
-server_session = Session(app)
+Session(app)
 
 db.init_app(app)
 
@@ -44,11 +46,23 @@ def user_loader(user_id):
 def remove_session(*e, **extra):
     session['email'] = ""
 
-# with app.app_context():
-#     get_papers(datetime(2023, 8, 8, 17, 30, 0, tzinfo=timezone.utc))
-#     papers = Paper.query.all()
-# for paper in papers:
-#     print(paper.title)
+# ---------------------------------------------------------
+# Scheduling the arXiv scraper
+ARXIV_TIMEZONE = timezone.utc
+def download_papers():
+    with app.app_context():
+        today = datetime.now(ARXIV_TIMEZONE)
+        yesterday = today - timedelta(days=1)
+        yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+        get_papers(yesterday)
+
+# This prevents scheduling one function twice in the debug mode. More info: https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
+if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    scheduler = BackgroundScheduler()
+    # Download papers everyday at 00:30 AM in arxiv timezone (they work in 24 hour cycles)
+    scheduler.add_job(download_papers, trigger="cron", hour=0, minute=30, timezone=ARXIV_TIMEZONE)
+    scheduler.start()
+    atexit.register(lambda: scheduler.shutdown())
 
 # ---------------------------------------------------------
 # Forms
@@ -110,6 +124,7 @@ def login():
             db.session.commit()
             login_user(user, remember=True)
             flash("Logged in successfully")
+            logging.info(f"User with email: {user.email} logged in")
             return redirect(url_for('home_page'))
 
     return render_template("login.html", login_form=form)
@@ -128,6 +143,7 @@ def sign_up():
         try:
             db.session.commit()
             flash("Successfully added a new user")
+            logging.info(f"User with email: {new_user.email} created a new account")
             session['email'] = form.email.data
             return redirect(url_for('interests'))
         except:
@@ -159,9 +175,9 @@ def interests():
         }
         temp_dict = dict()
         for attr in map(lambda x: getattr(form, x), dir(form)):
-            if not isinstance(attr, BooleanField):
+            if not isinstance(attr, BooleanField) or isinstance(attr, SubmitField):
                 continue
-            tokens = label_to_tokens[attr.label]
+            tokens = label_to_tokens[attr.label.text]
             for token in tokens:
                 temp_dict[token] = 1 if attr.data else 0
 
@@ -195,6 +211,7 @@ def home_page():
 @app.route('/logout')
 @login_required
 def logout():
+    logging.info(f"User with email: {current_user.email} logged out")
     logout_user()
     flash("Logged out successfully")
     return redirect(url_for("login"))

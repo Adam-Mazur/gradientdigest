@@ -10,13 +10,6 @@ import fitz
 import feedparser
 import requests
 import logging
-# TODO: Delete this
-logging.basicConfig(
-    level=logging.DEBUG,
-    filename='log.txt',
-    filemode='a',
-    format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
-)
 
 # Ignoring scikit learn warnings from the tf-idf vectorizer
 warnings.filterwarnings("ignore")
