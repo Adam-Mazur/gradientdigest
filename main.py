@@ -14,6 +14,7 @@ import bcrypt
 import json
 import atexit
 import os
+from math import ceil
 
 app = Flask(__name__)
 
@@ -26,6 +27,7 @@ logging.basicConfig(
     filemode='a',
     format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
 )
+
 # Creating server session to store account info of users that didn't complete the sign up
 Session(app)
 
@@ -125,7 +127,7 @@ def login():
             login_user(user, remember=True)
             flash("Logged in successfully")
             logging.info(f"User with email: {user.email} logged in")
-            return redirect(url_for('home_page'))
+            return redirect(url_for('home_page', page=1))
 
     return render_template("login.html", login_form=form)
 
@@ -187,7 +189,7 @@ def interests():
             flash("Updated interests")
             login_user(user, remember=True)
             session['email'] = ""
-            return redirect(url_for('home_page'))
+            return redirect(url_for('home_page', page=1))
         except:
             db.session.rollback()
             flash("Something went wrong, try again")
@@ -199,14 +201,36 @@ def display_date(date):
     months = [
         "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
     ]
-    return months[date.month] + " " + str(date.year)
+    return months[date.month-1] + " " + str(date.year)
 
-@app.route('/')
+@app.route('/', defaults={'page': 1})
+@app.route('/<int:page>')
 @login_required
-def home_page():
+def home_page(page):
+    PAGE_LENGTH = 20
     papers = Paper.query.all()
     papers.sort(key=lambda x: cosine(current_user.vector, x.vector), reverse=True)
-    return render_template("index.html", papers=papers[:10])
+    # Assigning correct page numbers
+    page_number_1 = page - 1
+    page_number_2 = page 
+    page_number_3 = page + 1
+    if page == 1:
+        page_number_1 = page
+        page_number_2 = page + 1
+        page_number_3 = page + 2
+    if page == ceil(len(papers) / PAGE_LENGTH):
+        page_number_1 = page - 2
+        page_number_2 = page - 1
+        page_number_3 = page
+    return render_template(
+        "index.html",
+        current_page=page,
+        page_number_1=page_number_1,
+        page_number_2=page_number_2,
+        page_number_3=page_number_3,
+        number_of_pages=ceil(len(papers) / PAGE_LENGTH),
+        papers=papers[(page-1)*PAGE_LENGTH:page*PAGE_LENGTH]
+    )
 
 @app.route('/logout')
 @login_required

@@ -24,21 +24,49 @@
     </div>
     {% for paper in papers %}
     <div class="article">
-        <div class="title-row">
-            <span class="article-title">{{ paper.title }}</span>
-            <span class="article-meta">{{ paper.submited_date | display_date }}</span>
-            <div class="indicator" style="background-color: #FF7A00;"></div>
-            <span class="article-meta">Relevance</span>
-            <div class="indicator" style="background-color: #00B612;"></div>
-            <span class="article-meta">Popularity</span>
-        </div>
+        <span class="article-title">{{ paper.title }}</span>
         <span class="authors">
             {{ paper.authors }}
         </span>
         <p class="abstract">
             {{ paper.abstract }}
         </p>
+        <div>
+            <span class="article-meta">{{ paper.submited_date | display_date }}</span>
+            <div class="indicator" style="background-color: #FF7A00;"></div>
+            <span class="article-meta">Relevance</span>
+            <div class="indicator" style="background-color: #00B612;"></div>
+            <span class="article-meta">Popularity</span>
+        </div>
+        <div class="article-sidebar">
+            <img src="{{ url_for('static', filename='images/like.svg') }}">
+            <ul>
+                <li class="sidebar-link"><a href="{{ paper.site_link }}" target="_blank">Site</a></li>
+                <li class="sidebar-link"><a href="{{ paper.pdf_link }}" target="_blank">PDF</a></li>
+            </ul>
+        </div>
     </div>
     {% endfor %}
+    <div class="next-page">
+        <a href="{{ url_for('home_page', page=page_number_1) }}">
+            <button class="page-button" {% if current_page == page_number_1 %} id="current-page" {% endif %} >
+                {{ page_number_1 }}
+            </button>
+        {% if number_of_pages >= 2 %}
+        </a>
+        <a href="{{ url_for('home_page', page=page_number_2) }}">
+            <button class="page-button" {% if current_page == page_number_2 %} id="current-page" {% endif %}>
+                {{ page_number_2 }}
+            </button>
+        </a>
+        {% endif %}
+        {% if number_of_pages >= 3 %}
+        <a href="{{ url_for('home_page', page=page_number_3) }}">
+            <button class="page-button" {% if current_page == page_number_3 %} id="current-page" {% endif %}>
+                {{ page_number_3 }}
+            </button>
+        </a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}
