@@ -1,11 +1,11 @@
 from flask_login import LoginManager, login_required, login_user, logout_user, user_logged_out, current_user
-from flask import Flask, render_template, redirect, url_for, flash, session
+from flask import Flask, render_template, redirect, url_for, flash, session, request
 from wtforms import StringField, SubmitField, BooleanField
 from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
 from database import db, User, Paper
 from flask_session import Session
-from arxiv_scraper import get_papers
+# from arxiv_scraper import get_papers
 from datetime import datetime, timedelta, timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 from recommender import update_user_profile, cosine
@@ -50,21 +50,21 @@ def remove_session(*e, **extra):
 
 # ---------------------------------------------------------
 # Scheduling the arXiv scraper
-ARXIV_TIMEZONE = timezone.utc
-def download_papers():
-    with app.app_context():
-        today = datetime.now(ARXIV_TIMEZONE)
-        yesterday = today - timedelta(days=1)
-        yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
-        get_papers(yesterday)
+# ARXIV_TIMEZONE = timezone.utc
+# def download_papers():
+#     with app.app_context():
+#         today = datetime.now(ARXIV_TIMEZONE)
+#         yesterday = today - timedelta(days=1)
+#         yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+#         get_papers(yesterday)
 
-# This prevents scheduling one function twice in the debug mode. More info: https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
-if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-    scheduler = BackgroundScheduler()
-    # Download papers everyday at 00:30 AM in arxiv timezone (they work in 24 hour cycles)
-    scheduler.add_job(download_papers, trigger="cron", hour=0, minute=30, timezone=ARXIV_TIMEZONE)
-    scheduler.start()
-    atexit.register(lambda: scheduler.shutdown())
+# # This prevents scheduling one function twice in the debug mode. More info: https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
+# if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+#     scheduler = BackgroundScheduler()
+#     # Download papers everyday at 00:30 AM in arxiv timezone (they work in 24 hour cycles)
+#     scheduler.add_job(download_papers, trigger="cron", hour=0, minute=30, timezone=ARXIV_TIMEZONE)
+#     scheduler.start()
+#     atexit.register(lambda: scheduler.shutdown())
 
 # ---------------------------------------------------------
 # Forms
@@ -203,11 +203,25 @@ def display_date(date):
     ]
     return months[date.month-1] + " " + str(date.year)
 
-@app.route('/', defaults={'page': 1})
-@app.route('/<int:page>')
+@app.route('/', defaults={'page': 1}, methods=['GET', 'POST'])
+@app.route('/<int:page>', methods=['GET', 'POST'])
 @login_required
 def home_page(page):
     PAGE_LENGTH = 20
+    if request.method == 'POST':
+        # The user liked an article
+        for name in request.json:
+            paper = Paper.query.get(int(name))
+            if request.json[name]:
+                current_user.liked_papers.append(paper)
+                current_user.vector = update_user_profile(current_user.vector, paper.vector, 0.95, 0.05, 0.02)
+            else:
+                current_user.liked_papers.remove(paper)
+                current_user.vector = update_user_profile(current_user.vector, paper.vector, 1/0.95, -0.05, 0)
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
     papers = Paper.query.all()
     papers.sort(key=lambda x: cosine(current_user.vector, x.vector), reverse=True)
     # Assigning correct page numbers
@@ -229,7 +243,8 @@ def home_page(page):
         page_number_2=page_number_2,
         page_number_3=page_number_3,
         number_of_pages=ceil(len(papers) / PAGE_LENGTH),
-        papers=papers[(page-1)*PAGE_LENGTH:page*PAGE_LENGTH]
+        papers=papers[(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
+        current_user=current_user
     )
 
 @app.route('/logout')

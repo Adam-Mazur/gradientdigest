@@ -9,9 +9,7 @@ def update_user_profile(user_vector, document_vector, alpha, beta, gamma):
             user_vector[key] += beta * document_vector[key]
 
     # Delete very low weights
-    for key in user_vector:
-        if user_vector[key] < gamma:
-            user_vector.pop(key)
+    user_vector = {k: v for k,v in user_vector.items() if v >= gamma}
 
     return user_vector
 

@@ -39,7 +39,8 @@
             <span class="article-meta">Popularity</span>
         </div>
         <div class="article-sidebar">
-            <img src="{{ url_for('static', filename='images/like.svg') }}">
+            <input type="checkbox" id="{{ paper.id }}" class="like-button" {% if current_user in paper.users%} checked {% endif %}>
+            <label for="{{ paper.id }}"></label>
             <ul>
                 <li class="sidebar-link"><a href="{{ paper.site_link }}" target="_blank">Site</a></li>
                 <li class="sidebar-link"><a href="{{ paper.pdf_link }}" target="_blank">PDF</a></li>
@@ -69,4 +70,16 @@
         {% endif %}
     </div>
 </div>
+<script>
+    like_buttons = document.getElementsByClassName('like-button');
+    for (let button of like_buttons) {
+        button.addEventListener('change', (event) => {
+            fetch('/', {
+                method: 'POST',
+                body: JSON.stringify({[button.id]: button.checked}),
+                headers: new Headers({'content-type': 'application/json'}),
+            });
+        })
+    }
+</script>
 {% endblock %}

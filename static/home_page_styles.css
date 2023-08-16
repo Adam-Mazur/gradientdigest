@@ -217,6 +217,19 @@ body {
     user-select: auto;
 }
 
+.article-sidebar > input {
+    display: none;
+}
+
+.article-sidebar > input + label {
+    content: url('images/like_outline.svg');
+    cursor: pointer;
+}
+
+.article-sidebar > input:checked + label {
+    content: url('images/like.svg');
+}
+
 .next-page {
     margin-top: 35px;
     margin-bottom: 35px;
