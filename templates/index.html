@@ -50,12 +50,20 @@
 </div>
 {% endfor %}
 <div class="next-page">
+    {% if page_number_1 != 1 %}
+    <a href="{{ url_for('home_page', page=1) }}">
+        <button class="page-button">
+            {{ 1 }}
+        </button>
+    </a>
+    ...
+    {% endif %}
     <a href="{{ url_for('home_page', page=page_number_1) }}">
         <button class="page-button" {% if current_page == page_number_1 %} id="current-page" {% endif %} >
             {{ page_number_1 }}
         </button>
-    {% if number_of_pages >= 2 %}
     </a>
+    {% if number_of_pages >= 2 %}
     <a href="{{ url_for('home_page', page=page_number_2) }}">
         <button class="page-button" {% if current_page == page_number_2 %} id="current-page" {% endif %}>
             {{ page_number_2 }}

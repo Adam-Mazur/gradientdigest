@@ -172,10 +172,11 @@ a {
     cursor: pointer;
 }
 
-.next-page > a:nth-child(2) {
-    margin-left: 15px;
-    margin-right: 15px;
+.next-page > a {
+    margin-right: 7.5px;
+    margin-left: 7.5px;
 }
+
 
 #current-page {
     background: #616161;
