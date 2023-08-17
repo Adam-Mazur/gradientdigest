@@ -25,56 +25,55 @@
         </p>
         <div style="padding-top: 20px;"></div>
         <form action="/interests" method="POST">
-            {{ interests_form.hidden_tag() }}
             <div class="chip-row">
                 <label>
-                    {{ interests_form.field_nlp() }}
-                    <span>NLP</span>
+                    <input type="checkbox" name="{{ interests_form[0] }}" id="{{ interests_form[0] }}">
+                    <span>{{ interests_form[0] }}</span>
                 </label>
                 <label>
-                    {{ interests_form.field_transformers() }}
-                    <span>Transformers</span>
+                    <input type="checkbox" name="{{ interests_form[1] }}" id="{{ interests_form[1] }}">
+                    <span>{{ interests_form[1] }}</span>
                 </label>
                 <label>
-                    {{ interests_form.field_neural_networks() }}
-                    <span>Neural networks</span>
+                    <input type="checkbox" name="{{ interests_form[2] }}" id="{{ interests_form[2] }}">
+                    <span>{{ interests_form[2] }}</span>
                 </label>
             </div>
             <div class="chip-row">
                 <label>
-                    {{ interests_form.field_robotics() }}
-                    <span>Robotics</span>
+                    <input type="checkbox" name="{{ interests_form[3] }}" id="{{ interests_form[3] }}">
+                    <span>{{ interests_form[3] }}</span>
                 </label>
                 <label>
-                    {{ interests_form.field_deep_learning() }}
-                    <span>Deep learning</span>
+                    <input type="checkbox" name="{{ interests_form[4] }}" id="{{ interests_form[4] }}">
+                    <span>{{ interests_form[4] }}</span>
                 </label>
                 <label>
-                    {{ interests_form.field_optimization() }}
-                    <span>Optimization</span>
+                    <input type="checkbox" name="{{ interests_form[5] }}" id="{{ interests_form[5] }}">
+                    <span>{{ interests_form[5] }}</span>
                 </label>
             </div>
             <div class="chip-row">
                 <label>
-                    {{ interests_form.field_computer_vision() }}
-                    <span>Computer vision</span>
+                    <input type="checkbox" name="{{ interests_form[6] }}" id="{{ interests_form[6] }}">
+                    <span>{{ interests_form[6] }}</span>
                 </label>
                 <label>
-                    {{ interests_form.field_supervised_learning() }}
-                    <span>Supervised learning</span>
+                    <input type="checkbox" name="{{ interests_form[7] }}" id="{{ interests_form[7] }}">
+                    <span>{{ interests_form[7] }}</span>
                 </label>
             </div>
             <div class="chip-row">
                 <label>
-                    {{ interests_form.field_unsupervised_learning() }}
-                    <span>Unsupervised learning</span>
+                    <input type="checkbox" name="{{ interests_form[8] }}" id="{{ interests_form[8] }}">
+                    <span>{{ interests_form[8] }}</span>
                 </label>
                 <label>
-                    {{ interests_form.field_reinforcement_learning() }}
-                    <span>Reinforcement learning</span>
+                    <input type="checkbox" name="{{ interests_form[9] }}" id="{{ interests_form[9] }}">
+                    <span>{{ interests_form[9] }}</span>
                 </label>
             </div>
-            {{ interests_form.interests_submit() }}
+            <input id="interests_submit" name="interests_submit" type="submit" value="Submit">
         </form>
     </div>
 </div>

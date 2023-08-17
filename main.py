@@ -85,27 +85,6 @@ class SignUpForm(FlaskForm):
             return True
         return False
 
-class InterestsForm(FlaskForm):
-    field_nlp = BooleanField("NLP")
-    field_transformers = BooleanField("Transformers")
-    field_neural_networks = BooleanField("Neural networks")
-    field_robotics = BooleanField("Robotics")
-    field_deep_learning = BooleanField("Deep learning")
-    field_optimization = BooleanField("Optimization")
-    field_computer_vision = BooleanField("Computer vision")
-    field_supervised_learning = BooleanField("Supervised learning")
-    field_unsupervised_learning = BooleanField("Unsupervised learning")
-    field_reinforcement_learning = BooleanField("Reinforcement learning")
-    interests_submit = SubmitField("Submit")
-
-    def validate(self, **kwargs):
-        validators = FlaskForm.validate(self)
-        # At least one field must be selected 
-        attribures = list(map(lambda x: getattr(self, x), dir(self)))
-        if validators and any(map(lambda x: isinstance(x, BooleanField) and x.data, attribures)):
-            return True
-        return False
-
 # ---------------------------------------------------------
 # Endpoints
 @app.route('/login', methods=['GET', 'POST'])
@@ -154,48 +133,53 @@ def sign_up():
 
     return render_template("sign_up.html", sign_up_form=form)
 
+# The labels for the interests page form and their tokens after text normalization
+label_to_tokens = {
+    "NLP": ["nlp"],
+    "Transformers": ["transformers"],
+    "Neural networks": ["neural", "network"],
+    "Robotics": ["robotics"],
+    "Deep learning": ["deep", "learn"],
+    "Optimization": ["optimization"],
+    "Computer vision": ["computer", "vision"],
+    "Supervised learning": ["supervised", "learn"],
+    "Unsupervised learning": ["unsupervised", "learn"],
+    "Reinforcement learning": ["reinforcement", "learn"]
+}
+
 @app.route('/interests', methods=['GET', 'POST'])
 def interests():
     if not session['email']:
         flash("You cannot access this page")
         return redirect(url_for('login')) 
-    form = InterestsForm()
-    if form.validate_on_submit():
-        user = User.query.get(session['email'])
+    if request.method == 'POST':
+        at_least_one_toggled = False
         # Getting data from the form to the database
-        label_to_tokens = {
-            "NLP": ["nlp"],
-            "Transformers": ["transformers"],
-            "Neural networks": ["neural", "network"],
-            "Robotics": ["robotics"],
-            "Deep learning": ["deep", "learn"],
-            "Optimization": ["optimization"],
-            "Computer vision": ["computer", "vision"],
-            "Supervised learning": ["supervised", "learn"],
-            "Unsupervised learning": ["unsupervised", "learn"],
-            "Reinforcement learning": ["reinforcement", "learn"]
-        }
         temp_dict = dict()
-        for attr in map(lambda x: getattr(form, x), dir(form)):
-            if not isinstance(attr, BooleanField) or isinstance(attr, SubmitField):
-                continue
-            tokens = label_to_tokens[attr.label.text]
-            for token in tokens:
-                temp_dict[token] = 1 if attr.data else 0
-
-        user.vector = temp_dict
-        try:
-            db.session.commit()
-            flash("Updated interests")
+        for chip in request.form:
+            if chip != "interests_submit" and request.form[chip] == 'on':
+                at_least_one_toggled = True
+                tokens = label_to_tokens[chip]
+                for token in tokens:
+                    temp_dict[token] = 1
+        if not at_least_one_toggled:
+            flash("You must select at least one field")
+        else:
+            user = User.query.get(session['email'])
+            user.vector = temp_dict
+            try:
+                db.session.commit()
+                flash("Updated interests")
+            except:
+                db.session.rollback()
+                flash("Something went wrong, try again")
             login_user(user, remember=True)
             session['email'] = ""
             return redirect(url_for('home_page', page=1))
-        except:
-            db.session.rollback()
-            flash("Something went wrong, try again")
 
-    return render_template("interests.html", interests_form=form)
+    return render_template("interests.html", interests_form=list(label_to_tokens.keys()))
 
+# This filter is used to format dates nicely on the home page
 @app.template_filter("display_date")
 def display_date(date):
     months = [
@@ -259,6 +243,9 @@ def logout():
     flash("Logged out successfully")
     return redirect(url_for("login"))
 
+# Interest page needs seperate logout route, because after signing up the user is redirected to the interests page 
+# and only after going through the form they are logged in. So if the user wants to logout from the interests page
+# Their email needs to be deleted from the session, because that's the way the server remembers them.  
 @app.route('/logout-interest')
 def logout_interests():
     session['email'] = ""
