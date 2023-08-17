@@ -259,6 +259,15 @@ def logout():
     flash("Logged out successfully")
     return redirect(url_for("login"))
 
+@app.route('/logout-interest')
+def logout_interests():
+    session['email'] = ""
+    flash("Logged out successfully")
+    return redirect(url_for("login"))
+
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    if current_user.is_authenticated:
+        return render_template('about_logged_in.html')
+    else:
+        return render_template('about_new_user.html')

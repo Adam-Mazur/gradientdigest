@@ -1,21 +1,29 @@
-{% extends "new_user.html" %}
-{% block dialog %}
-<span class="dialog-title">Login</span>
-<form action="/login" method="POST" class="form">
-    {{ login_form.hidden_tag() }}
-    <label for="email">Email</label><br>
-    {{ login_form.email() }}
-    <div style="padding-top: 25px;"></div>
-    <label for="password">Password</label>
-    <br>
-    {{ login_form.password() }}
-    {{ login_form.login_submit() }}
-</form>
-<div style="padding-top: 35px;"></div>
-<p class="dialog-text">
-    Don’t have an account yet?
+{% extends "new_user_navbar.html" %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ url_for('static', filename='new_user.css') }}">
+{% endblock %}
+{% block main %}
+<p class="banner-text">
+    Stay updated with latest ML research 
 </p>
-<a href="{{ url_for('sign_up') }}">
-    <button class="blue-button" id="sign-up-button">Sign up</button>
-</a>
+<div class="login-dialog-box">
+    <span class="dialog-title">Login</span>
+    <form action="/login" method="POST" class="form">
+        {{ login_form.hidden_tag() }}
+        <label for="email">Email</label><br>
+        {{ login_form.email() }}
+        <div style="padding-top: 25px;"></div>
+        <label for="password">Password</label>
+        <br>
+        {{ login_form.password() }}
+        {{ login_form.login_submit() }}
+    </form>
+    <div style="padding-top: 35px;"></div>
+    <p class="dialog-text">
+        Don’t have an account yet?
+    </p>
+    <a href="{{ url_for('sign_up') }}">
+        <button class="blue-button" id="sign-up-button">Sign up</button>
+    </a>
+</div>
 {% endblock %}

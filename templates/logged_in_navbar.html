@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='logged_in_navbar.css') }}">
+{% block stylesheet %}
+{% endblock %}
+{% endblock %}
+{% block body %}
+<ul class="navbar">
+    <img class="logo" src="{{ url_for('static', filename='images/Logo.png') }}">
+    <form action="/" method="POST">
+        <input type="text" id="search" name="search" placeholder="Search">
+    </form>
+    <a href="{{ url_for('about') }}" class="navbar-element">
+        <li>About</li>
+    </a>
+    <a href="{{ url_for('logout') }}" class="navbar-element">
+        <li>Logout</li>
+    </a>
+</ul>
+<div class="main">
+{% block main %}
+{% endblock %}
+</div>
+{% endblock %}

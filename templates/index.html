@@ -1,88 +1,74 @@
-{% extends "base.html" %}
-{% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='home_page_styles.css') }}">
+{% extends "logged_in_navbar.html" %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ url_for('static', filename='home_page.css') }}">
 {% endblock %}
-{% block body %}
-<ul class="navbar">
-    <img class="logo" src="{{ url_for('static', filename='images/Logo.png') }}">
-    <form action="/" method="POST">
-        <input type="text" id="search" name="search" placeholder="Search">
-    </form>
-    <a href="{{ url_for('about') }}" class="navbar-element">
-        <li>About</li>
-    </a>
-    <a href="{{ url_for('logout') }}" class="navbar-element">
-        <li>Logout</li>
-    </a>
-</ul>
-<div class="main">
-    <div class="header">
-        <p class="text-banner">
-            Top results from last week
-        </p>
-        <p class="sort-options">
-            Sort by <span style="font-weight: 700;">Popularity</span>
-        </p>
-    </div>
-    {% for paper, relevance in zip(papers, relevances) %}
-    <div class="article">
-        <span class="article-title">{{ paper.title }}</span>
-        <span class="authors">
-            {{ paper.authors }}
-        </span>
-        <p class="abstract">
-            {{ paper.abstract }}
-        </p>
-        <div>
-            <span class="article-meta">{{ paper.submited_date | display_date }}</span>
-            {% if relevance > 0.1 %}
-            <div class="indicator" style="background-color: #FF0D0D;"></div>
-            {% elif relevance > 0.05 %}
-            <div class="indicator" style="background-color: #FF4E11;"></div>
-            {% elif relevance > 0.02 %}
-            <div class="indicator" style="background-color: #FF8E15;"></div>
-            {% elif relevance > 0.01 %}
-            <div class="indicator" style="background-color: #FAB733;"></div>
-            {% elif relevance > 0.005 %}
-            <div class="indicator" style="background-color: #ACB334;"></div>
-            {% else %}
-            <div class="indicator" style="background-color: #69B34C;"></div>
-            {% endif %}
-            <span class="article-meta">Relevance</span>
-            <div class="indicator" style="background-color: #00B612;"></div>
-            <span class="article-meta">Popularity</span>
-        </div>
-        <div class="article-sidebar">
-            <input type="checkbox" id="{{ paper.id }}" class="like-button" {% if current_user in paper.users%} checked {% endif %}>
-            <label for="{{ paper.id }}"></label>
-            <ul>
-                <li class="sidebar-link"><a href="{{ paper.site_link }}" target="_blank">Site</a></li>
-                <li class="sidebar-link"><a href="{{ paper.pdf_link }}" target="_blank">PDF</a></li>
-            </ul>
-        </div>
-    </div>
-    {% endfor %}
-    <div class="next-page">
-        <a href="{{ url_for('home_page', page=page_number_1) }}">
-            <button class="page-button" {% if current_page == page_number_1 %} id="current-page" {% endif %} >
-                {{ page_number_1 }}
-            </button>
-        {% if number_of_pages >= 2 %}
-        </a>
-        <a href="{{ url_for('home_page', page=page_number_2) }}">
-            <button class="page-button" {% if current_page == page_number_2 %} id="current-page" {% endif %}>
-                {{ page_number_2 }}
-            </button>
-        </a>
+{% block main %}
+<div class="header">
+    <p class="text-banner">
+        Top results from last week
+    </p>
+    <p class="sort-options">
+        Sort by <span style="font-weight: 700;">Popularity</span>
+    </p>
+</div>
+{% for paper, relevance in zip(papers, relevances) %}
+<div class="article">
+    <span class="article-title">{{ paper.title }}</span>
+    <span class="authors">
+        {{ paper.authors }}
+    </span>
+    <p class="abstract">
+        {{ paper.abstract }}
+    </p>
+    <div>
+        <span class="article-meta">{{ paper.submited_date | display_date }}</span>
+        {% if relevance > 0.1 %}
+        <div class="indicator" style="background-color: #FF0D0D;"></div>
+        {% elif relevance > 0.05 %}
+        <div class="indicator" style="background-color: #FF4E11;"></div>
+        {% elif relevance > 0.02 %}
+        <div class="indicator" style="background-color: #FF8E15;"></div>
+        {% elif relevance > 0.01 %}
+        <div class="indicator" style="background-color: #FAB733;"></div>
+        {% elif relevance > 0.005 %}
+        <div class="indicator" style="background-color: #ACB334;"></div>
+        {% else %}
+        <div class="indicator" style="background-color: #69B34C;"></div>
         {% endif %}
-        {% if number_of_pages >= 3 %}
-        <a href="{{ url_for('home_page', page=page_number_3) }}">
-            <button class="page-button" {% if current_page == page_number_3 %} id="current-page" {% endif %}>
-                {{ page_number_3 }}
-            </button>
-        </a>
-        {% endif %}
+        <span class="article-meta">Relevance</span>
+        <div class="indicator" style="background-color: #00B612;"></div>
+        <span class="article-meta">Popularity</span>
     </div>
+    <div class="article-sidebar">
+        <input type="checkbox" id="{{ paper.id }}" class="like-button" {% if current_user in paper.users%} checked {% endif %}>
+        <label for="{{ paper.id }}"></label>
+        <ul>
+            <li class="sidebar-link"><a href="{{ paper.site_link }}" target="_blank">Site</a></li>
+            <li class="sidebar-link"><a href="{{ paper.pdf_link }}" target="_blank">PDF</a></li>
+        </ul>
+    </div>
+</div>
+{% endfor %}
+<div class="next-page">
+    <a href="{{ url_for('home_page', page=page_number_1) }}">
+        <button class="page-button" {% if current_page == page_number_1 %} id="current-page" {% endif %} >
+            {{ page_number_1 }}
+        </button>
+    {% if number_of_pages >= 2 %}
+    </a>
+    <a href="{{ url_for('home_page', page=page_number_2) }}">
+        <button class="page-button" {% if current_page == page_number_2 %} id="current-page" {% endif %}>
+            {{ page_number_2 }}
+        </button>
+    </a>
+    {% endif %}
+    {% if number_of_pages >= 3 %}
+    <a href="{{ url_for('home_page', page=page_number_3) }}">
+        <button class="page-button" {% if current_page == page_number_3 %} id="current-page" {% endif %}>
+            {{ page_number_3 }}
+        </button>
+    </a>
+    {% endif %}
 </div>
 <script>
     like_buttons = document.getElementsByClassName('like-button');

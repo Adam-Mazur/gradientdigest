@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='new_user_styles.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='new_user_navbar.css') }}">
+{% block stylesheet %}
+{% endblock %}
 {% endblock %}
 {% block body %}
 <ul class="navbar">
@@ -16,11 +18,7 @@
     </a>   
 </ul>
 <div class="main">
-    <p class="banner-text">
-        Stay updated with latest ML research 
-    </p>
-    <div class="login-dialog-box">
-    {% block dialog %}{% endblock %}
-    </div>
+{% block main %}
+{% endblock %}
 </div>
 {% endblock %}

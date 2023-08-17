@@ -1,61 +1,81 @@
-{% extends "new_user.html" %}
-{% block dialog %}
-<span class="dialog-title">Tell us about yourself</span>
-<div style="padding-top: 47px;"></div>
-<p class="dialog-text">
-    What areas of research are you interested in?
-</p>
-<div style="padding-top: 20px;"></div>
-<form action="/interests" method="POST">
-    {{ interests_form.hidden_tag() }}
-    <div class="chip-row">
-        <label>
-            {{ interests_form.field_nlp() }}
-            <span>NLP</span>
-        </label>
-        <label>
-            {{ interests_form.field_transformers() }}
-            <span>Transformers</span>
-        </label>
-        <label>
-            {{ interests_form.field_neural_networks() }}
-            <span>Neural networks</span>
-        </label>
+{% extends "base.html" %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='new_user.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='new_user_navbar.css') }}">
+{% endblock %}
+{% block body %}
+<ul class="navbar">
+    <img class="logo" src="{{ url_for('static', filename='images/Logo.png') }}">
+    <a href="{{ url_for('about') }}" class="navbar-element">
+        <li>About</li>
+    </a>
+    <a href="{{ url_for('logout_interests') }}" class="navbar-element">
+        <li>Logout</li>
+    </a>   
+</ul>
+<div class="main">
+    <p class="banner-text">
+        Stay updated with latest ML research 
+    </p>
+    <div class="login-dialog-box">
+        <span class="dialog-title">Tell us about yourself</span>
+        <div style="padding-top: 47px;"></div>
+        <p class="dialog-text">
+            What areas of research are you interested in?
+        </p>
+        <div style="padding-top: 20px;"></div>
+        <form action="/interests" method="POST">
+            {{ interests_form.hidden_tag() }}
+            <div class="chip-row">
+                <label>
+                    {{ interests_form.field_nlp() }}
+                    <span>NLP</span>
+                </label>
+                <label>
+                    {{ interests_form.field_transformers() }}
+                    <span>Transformers</span>
+                </label>
+                <label>
+                    {{ interests_form.field_neural_networks() }}
+                    <span>Neural networks</span>
+                </label>
+            </div>
+            <div class="chip-row">
+                <label>
+                    {{ interests_form.field_robotics() }}
+                    <span>Robotics</span>
+                </label>
+                <label>
+                    {{ interests_form.field_deep_learning() }}
+                    <span>Deep learning</span>
+                </label>
+                <label>
+                    {{ interests_form.field_optimization() }}
+                    <span>Optimization</span>
+                </label>
+            </div>
+            <div class="chip-row">
+                <label>
+                    {{ interests_form.field_computer_vision() }}
+                    <span>Computer vision</span>
+                </label>
+                <label>
+                    {{ interests_form.field_supervised_learning() }}
+                    <span>Supervised learning</span>
+                </label>
+            </div>
+            <div class="chip-row">
+                <label>
+                    {{ interests_form.field_unsupervised_learning() }}
+                    <span>Unsupervised learning</span>
+                </label>
+                <label>
+                    {{ interests_form.field_reinforcement_learning() }}
+                    <span>Reinforcement learning</span>
+                </label>
+            </div>
+            {{ interests_form.interests_submit() }}
+        </form>
     </div>
-    <div class="chip-row">
-        <label>
-            {{ interests_form.field_robotics() }}
-            <span>Robotics</span>
-        </label>
-        <label>
-            {{ interests_form.field_deep_learning() }}
-            <span>Deep learning</span>
-        </label>
-        <label>
-            {{ interests_form.field_optimization() }}
-            <span>Optimization</span>
-        </label>
-    </div>
-    <div class="chip-row">
-        <label>
-            {{ interests_form.field_computer_vision() }}
-            <span>Computer vision</span>
-        </label>
-        <label>
-            {{ interests_form.field_supervised_learning() }}
-            <span>Supervised learning</span>
-        </label>
-    </div>
-    <div class="chip-row">
-        <label>
-            {{ interests_form.field_unsupervised_learning() }}
-            <span>Unsupervised learning</span>
-        </label>
-        <label>
-            {{ interests_form.field_reinforcement_learning() }}
-            <span>Reinforcement learning</span>
-        </label>
-    </div>
-    {{ interests_form.interests_submit() }}
-</form>
+</div>
 {% endblock %}

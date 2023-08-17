@@ -1,20 +1,28 @@
-{% extends "new_user.html" %}
-{% block dialog %}
-<span class="dialog-title">Sign up</span>
-<form action="/sign-up" method="POST" class="form">
-    {{ sign_up_form.hidden_tag() }}
-    <label for="email" class="text-field-label">Email</label><br>
-    {{ sign_up_form.email() }}
-
-    <div style="padding-top: 25px;"></div>
-
-    <label for="password" class="text-field-label">Password</label><br>
-    {{ sign_up_form.password() }}
-
-    <div style="padding-top: 25px;"></div>
-
-    <label for="repeat-password" class="text-field-label">Repeat password</label><br>
-    {{ sign_up_form.repeat_password() }}
-    {{ sign_up_form.sign_up_submit() }}
-</form>
+{% extends "new_user_navbar.html" %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ url_for('static', filename='new_user.css') }}">
+{% endblock %}
+{% block main %}
+<p class="banner-text">
+    Stay updated with latest ML research 
+</p>
+<div class="login-dialog-box">
+    <span class="dialog-title">Sign up</span>
+    <form action="/sign-up" method="POST" class="form">
+        {{ sign_up_form.hidden_tag() }}
+        <label for="email" class="text-field-label">Email</label><br>
+        {{ sign_up_form.email() }}
+    
+        <div style="padding-top: 25px;"></div>
+    
+        <label for="password" class="text-field-label">Password</label><br>
+        {{ sign_up_form.password() }}
+    
+        <div style="padding-top: 25px;"></div>
+    
+        <label for="repeat-password" class="text-field-label">Repeat password</label><br>
+        {{ sign_up_form.repeat_password() }}
+        {{ sign_up_form.sign_up_submit() }}
+    </form>
+</div>
 {% endblock %}
