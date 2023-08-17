@@ -34,12 +34,11 @@ body {
     text-decoration: none;
 }
 
-
-.navbar > .navbar-element {
+.navbar-element:first-of-type {
     color: var(--black);
 }
 
-a:last-child {
+.navbar-element:last-child {
     margin-right: 17.5px;
 }
 

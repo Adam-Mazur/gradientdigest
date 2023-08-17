@@ -5,12 +5,14 @@
 {% block body %}
 <ul class="navbar">
     <img class="logo" src="{{ url_for('static', filename='images/Logo.png') }}">
-    <li class="navbar-element">About</li>
-    <a href="{{ url_for('login') }}">
-        <li class="navbar-element">Login</li>
+    <a href="{{ url_for('about') }}" class="navbar-element">
+        <li>About</li>
     </a>
-    <a href="{{ url_for('sign_up') }}">
-        <li class="navbar-element">Sign up</li>
+    <a href="{{ url_for('login') }}" class="navbar-element">
+        <li>Login</li>
+    </a>
+    <a href="{{ url_for('sign_up') }}" class="navbar-element">
+        <li>Sign up</li>
     </a>   
 </ul>
 <div class="main">

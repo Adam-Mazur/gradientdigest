@@ -1,7 +1,7 @@
 from flask_login import LoginManager, login_required, login_user, logout_user, user_logged_out, current_user
 from flask import Flask, render_template, redirect, url_for, flash, session, request
-from wtforms import StringField, SubmitField, BooleanField
-from wtforms.validators import DataRequired
+from wtforms import SubmitField, BooleanField, PasswordField, EmailField
+from wtforms.validators import DataRequired, Email, Length
 from flask_wtf import FlaskForm
 from database import db, User, Paper
 from flask_session import Session
@@ -22,10 +22,10 @@ app = Flask(__name__)
 # App configuration
 app.config.from_file('config.json', load=json.load)
 logging.basicConfig(
-    level=logging.DEBUG,
-    filename='log.txt',
-    filemode='a',
-    format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
+    # level=logging.DEBUG,
+    # filename='log.txt',
+    # filemode='a',
+    # format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
 )
 
 # Creating server session to store account info of users that didn't complete the sign up
@@ -69,14 +69,14 @@ def remove_session(*e, **extra):
 # ---------------------------------------------------------
 # Forms
 class LoginForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired()])
-    password = StringField("Password", validators=[DataRequired()])
+    email = EmailField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=8, max=72)])
     login_submit = SubmitField("Login")
 
 class SignUpForm(FlaskForm):
-    email = StringField("Email", validators=[DataRequired()])
-    password = StringField("Password", validators=[DataRequired()])
-    repeat_password = StringField("Repeat password", validators=[DataRequired()])
+    email = EmailField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=8, max=72)])
+    repeat_password = PasswordField("Repeat password", validators=[DataRequired(), Length(min=8, max=72)])
     sign_up_submit = SubmitField("Sign up")
 
     def validate(self, **kwargs):
@@ -223,7 +223,9 @@ def home_page(page):
             except:
                 db.session.rollback()
     papers = Paper.query.all()
-    papers.sort(key=lambda x: cosine(current_user.vector, x.vector), reverse=True)
+    # Assgning relevance scores to papers
+    papers_and_relevance = {p: cosine(current_user.vector, p.vector) for p in papers}
+    papers_and_relevance = dict(sorted(papers_and_relevance.items(), key=lambda x: x[1], reverse=True))
     # Assigning correct page numbers
     page_number_1 = page - 1
     page_number_2 = page 
@@ -243,8 +245,10 @@ def home_page(page):
         page_number_2=page_number_2,
         page_number_3=page_number_3,
         number_of_pages=ceil(len(papers) / PAGE_LENGTH),
-        papers=papers[(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
-        current_user=current_user
+        papers=list(papers_and_relevance.keys())[(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
+        relevances=list(papers_and_relevance.values())[(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
+        # Passing the zip function, bacause the jinja engine doesn't import it by default
+        zip=zip
     )
 
 @app.route('/logout')
@@ -254,3 +258,7 @@ def logout():
     logout_user()
     flash("Logged out successfully")
     return redirect(url_for("login"))
+
+@app.route('/about')
+def about():
+    return render_template('about.html')

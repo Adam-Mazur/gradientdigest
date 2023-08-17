@@ -8,9 +8,11 @@
     <form action="/" method="POST">
         <input type="text" id="search" name="search" placeholder="Search">
     </form>
-    <li class="navbar-element">About</li>
-    <a href="{{ url_for('logout') }}">
-        <li class="navbar-element">Logout</li>
+    <a href="{{ url_for('about') }}" class="navbar-element">
+        <li>About</li>
+    </a>
+    <a href="{{ url_for('logout') }}" class="navbar-element">
+        <li>Logout</li>
     </a>
 </ul>
 <div class="main">
@@ -22,7 +24,7 @@
             Sort by <span style="font-weight: 700;">Popularity</span>
         </p>
     </div>
-    {% for paper in papers %}
+    {% for paper, relevance in zip(papers, relevances) %}
     <div class="article">
         <span class="article-title">{{ paper.title }}</span>
         <span class="authors">
@@ -33,7 +35,19 @@
         </p>
         <div>
             <span class="article-meta">{{ paper.submited_date | display_date }}</span>
-            <div class="indicator" style="background-color: #FF7A00;"></div>
+            {% if relevance > 0.1 %}
+            <div class="indicator" style="background-color: #FF0D0D;"></div>
+            {% elif relevance > 0.05 %}
+            <div class="indicator" style="background-color: #FF4E11;"></div>
+            {% elif relevance > 0.02 %}
+            <div class="indicator" style="background-color: #FF8E15;"></div>
+            {% elif relevance > 0.01 %}
+            <div class="indicator" style="background-color: #FAB733;"></div>
+            {% elif relevance > 0.005 %}
+            <div class="indicator" style="background-color: #ACB334;"></div>
+            {% else %}
+            <div class="indicator" style="background-color: #69B34C;"></div>
+            {% endif %}
             <span class="article-meta">Relevance</span>
             <div class="indicator" style="background-color: #00B612;"></div>
             <span class="article-meta">Popularity</span>
