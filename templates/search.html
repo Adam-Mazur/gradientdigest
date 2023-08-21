@@ -5,22 +5,7 @@
 {% block main %}
 <div class="header">
     <span class="text-banner">
-        Top results from last
-        <div class="dropdown">
-            <button class="dropdown-button">
-                <u class="text-banner">{{ time_options[time] }}</u>
-                <img class="dropdown-icon-big" src="{{ url_for('static', filename='images/arrow-drop-down-big.svg') }}"> 
-            </button>
-            <div class="dropdown-content">
-                <a href="{{ url_for('home_page', page=current_page, time=0, sort=sort) }}">{{ time_options[0] }}</a>
-                <a href="{{ url_for('home_page', page=current_page, time=1, sort=sort) }}">{{ time_options[1] }}</a>
-                <a href="{{ url_for('home_page', page=current_page, time=2, sort=sort) }}">{{ time_options[2] }}</a>
-                <a href="{{ url_for('home_page', page=current_page, time=3, sort=sort) }}">{{ time_options[3] }}</a>
-                <a href="{{ url_for('home_page', page=current_page, time=4, sort=sort) }}">{{ time_options[4] }}</a>
-                <a href="{{ url_for('home_page', page=current_page, time=5, sort=sort) }}">{{ time_options[5] }}</a>
-                <a href="{{ url_for('home_page', page=current_page, time=6, sort=sort) }}">{{ time_options[6] }}</a>
-            </div>
-        </div>
+        Results related to “{{ query }}”
     </span>
     <span class="sort-options">
         Sort by 
@@ -30,9 +15,9 @@
                 <img class="dropdown-icon-small" src="{{ url_for('static', filename='images/arrow-drop-down-small.svg') }}"> 
             </button>
             <div class="dropdown-content dropdown-content-small">
-                <a href="{{ url_for('home_page', page=current_page, time=time, sort='Popularity') }}">Popularity</a>
-                <a href="{{ url_for('home_page', page=current_page, time=time, sort='Relevance') }}">Relevance</a>
-                <a href="{{ url_for('home_page', page=current_page, time=time, sort='Date') }}">Date</a>
+                <a href="{{ url_for('search', page=current_page, query=query, sort='Popularity') }}">Popularity</a>
+                <a href="{{ url_for('search', page=current_page, query=query, sort='Relevance') }}">Relevance</a>
+                <a href="{{ url_for('search', page=current_page, query=query, sort='Date') }}">Date</a>
             </div>
         </div>    
     </span>
@@ -94,27 +79,27 @@
 {% endif %}
 <div class="next-page">
     {% if page_number_1 != 1 %}
-    <a href="{{ url_for('home_page', page=1, time=time, sort=sort) }}">
+    <a href="{{ url_for('search', page=1, query=query, sort=sort) }}">
         <button class="page-button">
             {{ 1 }}
         </button>
     </a>
     ...
     {% endif %}
-    <a href="{{ url_for('home_page', page=page_number_1, time=time, sort=sort) }}">
+    <a href="{{ url_for('search', page=page_number_1, query=query, sort=sort) }}">
         <button class="page-button" {% if current_page == page_number_1 %} id="current-page" {% endif %} >
             {{ page_number_1 }}
         </button>
     </a>
     {% if number_of_pages >= 2 %}
-    <a href="{{ url_for('home_page', page=page_number_2, time=time, sort=sort) }}">
+    <a href="{{ url_for('search', page=page_number_2, query=query, sort=sort) }}">
         <button class="page-button" {% if current_page == page_number_2 %} id="current-page" {% endif %}>
             {{ page_number_2 }}
         </button>
     </a>
     {% endif %}
     {% if number_of_pages >= 3 %}
-    <a href="{{ url_for('home_page', page=page_number_3, time=time, sort=sort) }}">
+    <a href="{{ url_for('search', page=page_number_3, query=query, sort=sort) }}">
         <button class="page-button" {% if current_page == page_number_3 %} id="current-page" {% endif %}>
             {{ page_number_3 }}
         </button>

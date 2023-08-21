@@ -9,8 +9,9 @@
     <a href="/" class="logo-link">
         <img class="logo" src="{{ url_for('static', filename='images/Logo.png') }}">
     </a>
-    <form action="/" method="POST">
-        <input type="text" id="search" name="search" placeholder="Search">
+    <form action="/search" method="GET">
+        <input type="text" id="search" name="query" placeholder="Search">
+        <input type="submit" hidden>
     </form>
     <a href="{{ url_for('about') }}" class="navbar-element">
         <li>About</li>

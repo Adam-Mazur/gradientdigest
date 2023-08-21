@@ -14,6 +14,44 @@ import logging
 # Ignoring scikit learn warnings from the tf-idf vectorizer
 warnings.filterwarnings("ignore")
 
+def get_wordnet_pos(word):
+    """Map POS tag to first character lemmatize() accepts"""
+    tag = pos_tag([word])[0][1][0].upper()
+    # TODO: Make sure this works
+    tag_dict = {
+        "J": wordnet.ADJ,
+        "N": wordnet.NOUN,
+        "V": wordnet.VERB,
+        "R": wordnet.ADV,
+    }
+    return tag_dict.get(tag, wordnet.NOUN)
+
+lemmatizer = WordNetLemmatizer()
+tokenizer = TweetTokenizer()
+def text_normalization(text):
+    processed = []
+    text_tokens = tokenizer.tokenize(text)                
+    for token in text_tokens:
+        if not any(map(lambda x: x.isalpha(), token)):
+            continue
+        if len(token) == 1:
+            continue
+        # Lemmatization
+        token = lemmatizer.lemmatize(token, get_wordnet_pos(token))
+        processed.append(token)
+    return processed
+
+vectorizer = TfidfVectorizer(
+    input='content',
+    encoding='str',
+    tokenizer=text_normalization,
+    lowercase=True,
+    use_idf=True,
+    smooth_idf=True,
+    max_df=0.9,
+    stop_words='english'
+)
+
 def get_papers(starting_date, debug=False):
     """Download all the papers from the arxiv API that were submitted since [starting_date] and add them to the database.
     [strating_date] needs to have all the parameters (year, month, day, hour,...) and include tzinfo."""
@@ -147,44 +185,6 @@ def get_papers(starting_date, debug=False):
 
         if debug: break
         start_index += MAX_RESULTS
-    
-    def get_wordnet_pos(word):
-        """Map POS tag to first character lemmatize() accepts"""
-        tag = pos_tag([word])[0][1][0].upper()
-        # TODO: Make sure this works
-        tag_dict = {
-            "J": wordnet.ADJ,
-            "N": wordnet.NOUN,
-            "V": wordnet.VERB,
-            "R": wordnet.ADV,
-        }
-        return tag_dict.get(tag, wordnet.NOUN)
-    
-    lemmatizer = WordNetLemmatizer()
-    tokenizer = TweetTokenizer()
-    def text_normalization(text):
-        processed = []
-        text_tokens = tokenizer.tokenize(text)                
-        for token in text_tokens:
-            if not any(map(lambda x: x.isalpha(), token)):
-                continue
-            if len(token) == 1:
-                continue
-            # Lemmatization
-            token = lemmatizer.lemmatize(token, get_wordnet_pos(token))
-            processed.append(token)
-        return processed
-
-    vectorizer = TfidfVectorizer(
-        input='content',
-        encoding='str',
-        tokenizer=text_normalization,
-        lowercase=True,
-        use_idf=True,
-        smooth_idf=True,
-        max_df=0.9,
-        stop_words='english'
-    )
 
     if len(collection) == 0:
         logging.error(f"Downloading the pdf's from the arXiv API was unsuccessful. Starting date: {starting_date}")

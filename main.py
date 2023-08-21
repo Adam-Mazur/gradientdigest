@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Email, Length
 from flask_wtf import FlaskForm
 from database import db, User, Paper
 from flask_session import Session
-# from arxiv_scraper import get_papers
+from arxiv_scraper import get_papers, vectorizer
 from datetime import datetime, timedelta, timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 from recommender import update_user_profile, cosine
@@ -50,21 +50,21 @@ def remove_session(*e, **extra):
 
 # ---------------------------------------------------------
 # Scheduling the arXiv scraper
-# ARXIV_TIMEZONE = timezone.utc
-# def download_papers():
-#     with app.app_context():
-#         today = datetime.now(ARXIV_TIMEZONE)
-#         yesterday = today - timedelta(days=1)
-#         yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
-#         get_papers(yesterday)
+ARXIV_TIMEZONE = timezone.utc
+def download_papers():
+    with app.app_context():
+        today = datetime.now(ARXIV_TIMEZONE)
+        yesterday = today - timedelta(days=1)
+        yesterday = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+        get_papers(yesterday)
 
-# # This prevents scheduling one function twice in the debug mode. More info: https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
-# if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-#     scheduler = BackgroundScheduler()
-#     # Download papers everyday at 00:30 AM in arxiv timezone (they work in 24 hour cycles)
-#     scheduler.add_job(download_papers, trigger="cron", hour=0, minute=30, timezone=ARXIV_TIMEZONE)
-#     scheduler.start()
-#     atexit.register(lambda: scheduler.shutdown())
+# This prevents scheduling the function twice in the debug mode. More info: https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
+if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    scheduler = BackgroundScheduler()
+    # Download papers everyday at 00:30 AM in arxiv timezone (they work in 24 hour cycles)
+    scheduler.add_job(download_papers, trigger="cron", hour=0, minute=30, timezone=ARXIV_TIMEZONE)
+    scheduler.start()
+    atexit.register(lambda: scheduler.shutdown())
 
 # ---------------------------------------------------------
 # Forms
@@ -134,6 +134,7 @@ def sign_up():
     return render_template("sign_up.html", sign_up_form=form)
 
 # The labels for the interests page form and their tokens after text normalization
+# TODO: use analyzer instead
 LABEL_TO_TOKENS = {
     "NLP": ["nlp"],
     "Transformers": ["transformers"],
@@ -214,19 +215,19 @@ def home_page():
 
     # Filtering the results by time period
     if time_option == 0:
-        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(days=2)).all()
+        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(days=2)).all()
     elif time_option == 1:
-        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=1)).all()
+        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=1)).all()
     elif time_option == 2:
-        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=2)).all()
+        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=2)).all()
     elif time_option == 3:
-        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=4)).all()
+        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=4)).all()
     elif time_option == 4:
-        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=13)).all()
+        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=13)).all()
     elif time_option == 5:
-        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=26)).all()
+        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=26)).all()
     elif time_option == 6:
-        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=52)).all()
+        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=52)).all()
     else:
         flash("Wrong URL")
         return redirect(url_for('home_page'))
@@ -269,6 +270,72 @@ def home_page():
         relevances=[x[1] for x in papers][(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
         time_options=TIME_OPTIONS_TABLE,
         time=time_option,
+        sort=sort_option,
+        # Passing the zip function, bacause the jinja engine doesn't import it by default
+        zip=zip
+    )
+
+@app.route('/search', methods=['GET'])
+@login_required
+def search():
+    # Getting the named parameters from the URL
+    sort_option = request.args.get("sort", default="Relevance", type=str)
+    page        = request.args.get('page', default=1, type=int)
+    query       = request.args.get('query', type=str)
+
+    if len(query) == 0:
+        flash("Wrong query")
+        return redirect(url_for('home_page'))
+
+    analyzer = vectorizer.build_analyzer()
+    query_vector = analyzer(query)
+    vector = {}
+    for token in query_vector:
+        if token in vector:
+            vector[token] += 1
+        else:
+            vector[token] = 1
+
+    papers = Paper.query.all()
+
+    # Assigning relevance scores to papers
+    papers = [[p, cosine(vector, p.vector)] for p in papers]
+    
+    # Sort the papers
+    if sort_option == "Relevance":
+        papers.sort(key=lambda x: x[1], reverse=True)
+    elif sort_option == "Popularity":
+        papers.sort(key=lambda x: x[0].popularity, reverse=True)
+    elif sort_option == "Date":
+        papers.sort(key=lambda x: x[0].updated_date, reverse=True)
+    else:
+        flash("Wrong URL")
+        return redirect(url_for('home_page'))
+
+    # Assigning correct page numbers
+    page_number_1 = page - 1
+    page_number_2 = page 
+    page_number_3 = page + 1
+    if page == 1:
+        page_number_1 = page
+        page_number_2 = page + 1
+        page_number_3 = page + 2
+    if page == ceil(len(papers) / PAGE_LENGTH):
+        page_number_1 = page - 2
+        page_number_2 = page - 1
+        page_number_3 = page
+        
+    return render_template(
+        "search.html",
+        query=query,
+        current_page=page,
+        page_number_1=page_number_1,
+        page_number_2=page_number_2,
+        page_number_3=page_number_3,
+        number_of_pages=ceil(len(papers) / PAGE_LENGTH),
+        papers=[x[0] for x in papers][(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
+        relevances=[x[1] for x in papers][(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
+        time_options=TIME_OPTIONS_TABLE,
         sort=sort_option,
         # Passing the zip function, bacause the jinja engine doesn't import it by default
         zip=zip
