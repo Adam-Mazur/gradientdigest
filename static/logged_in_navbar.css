@@ -47,6 +47,9 @@ body {
 .logo {
     width: 180px;
     height: 44.85px;
+}
+
+.logo-link {
     float: left;
     margin-left: 18px;
     margin-top: 7px;

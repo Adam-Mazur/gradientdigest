@@ -86,6 +86,7 @@ a {
     /* Centering */
     margin: 0 auto;
     display: block;
+    cursor: pointer;
 }
 
 .blue-button:active, #login_submit:active, #sign_up_submit:active, #interests_submit:active {

@@ -1,6 +1,6 @@
 from flask_login import LoginManager, login_required, login_user, logout_user, user_logged_out, current_user
 from flask import Flask, render_template, redirect, url_for, flash, session, request
-from wtforms import SubmitField, BooleanField, PasswordField, EmailField
+from wtforms import SubmitField, PasswordField, EmailField
 from wtforms.validators import DataRequired, Email, Length
 from flask_wtf import FlaskForm
 from database import db, User, Paper
@@ -41,7 +41,7 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def user_loader(user_id):
-    return User.query.get(user_id)
+    return db.session.get(User, user_id)
 
 # Remove session variables when logging out, it prevents someone from using a loophole to login without password through interests page
 @user_logged_out.connect
@@ -91,7 +91,7 @@ class SignUpForm(FlaskForm):
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.get(form.email.data)
+        user = db.session.get(User, form.email.data)
         if not user:
             flash("Couldn't find your account")
         elif not bcrypt.checkpw(form.password.data.encode('utf8'), user.password):
@@ -134,7 +134,7 @@ def sign_up():
     return render_template("sign_up.html", sign_up_form=form)
 
 # The labels for the interests page form and their tokens after text normalization
-label_to_tokens = {
+LABEL_TO_TOKENS = {
     "NLP": ["nlp"],
     "Transformers": ["transformers"],
     "Neural networks": ["neural", "network"],
@@ -155,18 +155,18 @@ def interests():
     if request.method == 'POST':
         at_least_one_toggled = False
         # Getting data from the form to the database
-        temp_dict = dict()
+        vector = dict()
         for chip in request.form:
             if chip != "interests_submit" and request.form[chip] == 'on':
                 at_least_one_toggled = True
-                tokens = label_to_tokens[chip]
+                tokens = LABEL_TO_TOKENS[chip]
                 for token in tokens:
-                    temp_dict[token] = 1
+                    vector[token] = 1
         if not at_least_one_toggled:
             flash("You must select at least one field")
         else:
-            user = User.query.get(session['email'])
-            user.vector = temp_dict
+            user = db.session.get(User, session['email'])
+            user.vector = vector
             try:
                 db.session.commit()
                 flash("Updated interests")
@@ -177,7 +177,7 @@ def interests():
             session['email'] = ""
             return redirect(url_for('home_page', page=1))
 
-    return render_template("interests.html", interests_form=list(label_to_tokens.keys()))
+    return render_template("interests.html", interests_form=list(LABEL_TO_TOKENS.keys()))
 
 # This filter is used to format dates nicely on the home page
 @app.template_filter("display_date")
@@ -187,15 +187,15 @@ def display_date(date):
     ]
     return months[date.month-1] + " " + str(date.year)
 
-@app.route('/', defaults={'page': 1}, methods=['GET', 'POST'])
-@app.route('/<int:page>', methods=['GET', 'POST'])
+TIME_OPTIONS_TABLE = ["Day", "Week", "2 Weeks", "Month", "3 Months", "6 Months", "Year"]
+PAGE_LENGTH = 20
+@app.route('/', methods=['GET', 'POST'])
 @login_required
-def home_page(page):
-    PAGE_LENGTH = 20
+def home_page():
     if request.method == 'POST':
         # The user liked an article
         for name in request.json:
-            paper = Paper.query.get(int(name))
+            paper = db.session.get(Paper, int(name))
             if request.json[name]:
                 current_user.liked_papers.append(paper)
                 current_user.vector = update_user_profile(current_user.vector, paper.vector, 0.95, 0.05, 0.02)
@@ -206,10 +206,45 @@ def home_page(page):
                 db.session.commit()
             except:
                 db.session.rollback()
-    papers = Paper.query.all()
-    # Assgning relevance scores to papers
-    papers_and_relevance = {p: cosine(current_user.vector, p.vector) for p in papers}
-    papers_and_relevance = dict(sorted(papers_and_relevance.items(), key=lambda x: x[1], reverse=True))
+
+    # Getting the named parameters from the URL
+    time_option = request.args.get("time", default=0, type=int)
+    sort_option = request.args.get("sort", default="Relevance", type=str)
+    page        = request.args.get('page', default=1, type=int)
+
+    # Filtering the results by time period
+    if time_option == 0:
+        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(days=2)).all()
+    elif time_option == 1:
+        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=1)).all()
+    elif time_option == 2:
+        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=2)).all()
+    elif time_option == 3:
+        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=4)).all()
+    elif time_option == 4:
+        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=13)).all()
+    elif time_option == 5:
+        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=26)).all()
+    elif time_option == 6:
+        papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=52)).all()
+    else:
+        flash("Wrong URL")
+        return redirect(url_for('home_page'))
+
+    # Assigning relevance scores to papers
+    papers = [[p, cosine(current_user.vector, p.vector)] for p in papers]
+    
+    # Sort the papers
+    if sort_option == "Relevance":
+        papers.sort(key=lambda x: x[1], reverse=True)
+    elif sort_option == "Popularity":
+        papers.sort(key=lambda x: x[0].popularity, reverse=True)
+    elif sort_option == "Date":
+        papers.sort(key=lambda x: x[0].updated_date, reverse=True)
+    else:
+        flash("Wrong URL")
+        return redirect(url_for('home_page'))
+
     # Assigning correct page numbers
     page_number_1 = page - 1
     page_number_2 = page 
@@ -222,6 +257,7 @@ def home_page(page):
         page_number_1 = page - 2
         page_number_2 = page - 1
         page_number_3 = page
+        
     return render_template(
         "index.html",
         current_page=page,
@@ -229,8 +265,11 @@ def home_page(page):
         page_number_2=page_number_2,
         page_number_3=page_number_3,
         number_of_pages=ceil(len(papers) / PAGE_LENGTH),
-        papers=list(papers_and_relevance.keys())[(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
-        relevances=list(papers_and_relevance.values())[(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
+        papers=[x[0] for x in papers][(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
+        relevances=[x[1] for x in papers][(page-1)*PAGE_LENGTH:page*PAGE_LENGTH],
+        time_options=TIME_OPTIONS_TABLE,
+        time=time_option,
+        sort=sort_option,
         # Passing the zip function, bacause the jinja engine doesn't import it by default
         zip=zip
     )

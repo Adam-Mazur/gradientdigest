@@ -1,6 +1,6 @@
 .about-content {
     position: absolute;
-    left: 40%;
+    left: 35%;
     margin-top: 80px;
     margin-right: 200px;
     color: var(--black, #323232);
@@ -12,8 +12,8 @@
 .github-link {
     position: absolute;
     margin-top: 80px;
-    margin-right: 150px;
-    right: 60%;
+    margin-right: 100px;
+    right: 65%;
     text-align: center;
     color: var(--black, #323232);
     font-size: 14px;

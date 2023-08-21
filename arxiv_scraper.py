@@ -195,7 +195,7 @@ def get_papers(starting_date, debug=False):
 
     result = result.toarray()
     for i, id in enumerate(ids):
-        paper = Paper.query.get(id)
+        paper = db.session.get(Paper, id)
         vector = {}
         for a,b in zip(vectorizer.get_feature_names_out(), result[i]):
             vector[a] = b

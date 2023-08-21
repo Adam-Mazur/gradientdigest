@@ -5,7 +5,9 @@
 {% endblock %}
 {% block body %}
 <ul class="navbar">
-    <img class="logo" src="{{ url_for('static', filename='images/Logo.png') }}">
+    <a href="/" class="logo-link">
+        <img class="logo" src="{{ url_for('static', filename='images/Logo.png') }}">
+    </a>
     <a href="{{ url_for('about') }}" class="navbar-element">
         <li>About</li>
     </a>
