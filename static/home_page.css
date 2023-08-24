@@ -30,6 +30,7 @@
     border-radius: 15px;
     background: var(--grey, #F6F6F6);
     height: 140px;
+    width: 1000px;
     background-image: url('images/Document_icon.svg');
     background-repeat: no-repeat;
     padding: 5px 65px 5px 160px;

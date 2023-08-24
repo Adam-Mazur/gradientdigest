@@ -134,19 +134,10 @@ def sign_up():
     return render_template("sign_up.html", sign_up_form=form)
 
 # The labels for the interests page form and their tokens after text normalization
-# TODO: use analyzer instead
-LABEL_TO_TOKENS = {
-    "NLP": ["nlp"],
-    "Transformers": ["transformers"],
-    "Neural networks": ["neural", "network"],
-    "Robotics": ["robotics"],
-    "Deep learning": ["deep", "learn"],
-    "Optimization": ["optimization"],
-    "Computer vision": ["computer", "vision"],
-    "Supervised learning": ["supervised", "learn"],
-    "Unsupervised learning": ["unsupervised", "learn"],
-    "Reinforcement learning": ["reinforcement", "learn"]
-}
+LABELS = [
+    "NLP", "Transformers", "Neural networks", "Robotics", "Deep learning", "Optimization", "Computer vision", "Supervised learning", 
+    "Unsupervised learning", "Reinforcement learning"
+]
 
 @app.route('/interests', methods=['GET', 'POST'])
 def interests():
@@ -156,11 +147,12 @@ def interests():
     if request.method == 'POST':
         at_least_one_toggled = False
         # Getting data from the form to the database
+        analyzer = vectorizer.build_analyzer()
         vector = dict()
         for chip in request.form:
             if chip != "interests_submit" and request.form[chip] == 'on':
                 at_least_one_toggled = True
-                tokens = LABEL_TO_TOKENS[chip]
+                tokens = analyzer(chip)
                 for token in tokens:
                     vector[token] = 1
         if not at_least_one_toggled:
@@ -178,7 +170,7 @@ def interests():
             session['email'] = ""
             return redirect(url_for('home_page', page=1))
 
-    return render_template("interests.html", interests_form=list(LABEL_TO_TOKENS.keys()))
+    return render_template("interests.html", interests_form=LABELS)
 
 # This filter is used to format dates nicely on the home page
 @app.template_filter("display_date")
@@ -214,37 +206,39 @@ def home_page():
     page        = request.args.get('page', default=1, type=int)
 
     # Filtering the results by time period
-    if time_option == 0:
-        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(days=2)).all()
-    elif time_option == 1:
-        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=1)).all()
-    elif time_option == 2:
-        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=2)).all()
-    elif time_option == 3:
-        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=4)).all()
-    elif time_option == 4:
-        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=13)).all()
-    elif time_option == 5:
-        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=26)).all()
-    elif time_option == 6:
-        papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=52)).all()
-    else:
-        flash("Wrong URL")
-        return redirect(url_for('home_page'))
+    match time_option:
+        case 0:
+            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(days=2)).all()
+        case 1:
+            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=1)).all()
+        case 2:
+            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=2)).all()
+        case 3:
+            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=4)).all()
+        case 4:
+            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=13)).all()
+        case 5:
+            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=26)).all()
+        case 6:
+            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=52)).all()
+        case _:
+            flash("Wrong URL")
+            return redirect(url_for('home_page'))
 
     # Assigning relevance scores to papers
     papers = [[p, cosine(current_user.vector, p.vector)] for p in papers]
     
     # Sort the papers
-    if sort_option == "Relevance":
-        papers.sort(key=lambda x: x[1], reverse=True)
-    elif sort_option == "Popularity":
-        papers.sort(key=lambda x: x[0].popularity, reverse=True)
-    elif sort_option == "Date":
-        papers.sort(key=lambda x: x[0].updated_date, reverse=True)
-    else:
-        flash("Wrong URL")
-        return redirect(url_for('home_page'))
+    match sort_option:
+        case "Relevance":
+            papers.sort(key=lambda x: x[1], reverse=True)
+        case "Popularity":
+            papers.sort(key=lambda x: x[0].popularity, reverse=True)
+        case "Date":
+            papers.sort(key=lambda x: x[0].updated_date, reverse=True)
+        case _:
+            flash("Wrong URL")
+            return redirect(url_for('home_page'))
 
     # Assigning correct page numbers
     page_number_1 = page - 1
@@ -302,15 +296,16 @@ def search():
     papers = [[p, cosine(vector, p.vector)] for p in papers]
     
     # Sort the papers
-    if sort_option == "Relevance":
-        papers.sort(key=lambda x: x[1], reverse=True)
-    elif sort_option == "Popularity":
-        papers.sort(key=lambda x: x[0].popularity, reverse=True)
-    elif sort_option == "Date":
-        papers.sort(key=lambda x: x[0].updated_date, reverse=True)
-    else:
-        flash("Wrong URL")
-        return redirect(url_for('home_page'))
+    match sort_option:
+        case "Relevance":
+            papers.sort(key=lambda x: x[1], reverse=True)
+        case "Popularity":
+            papers.sort(key=lambda x: x[0].popularity, reverse=True)
+        case "Date":
+            papers.sort(key=lambda x: x[0].updated_date, reverse=True)
+        case _:
+            flash("Wrong URL")
+            return redirect(url_for('home_page'))
 
     # Assigning correct page numbers
     page_number_1 = page - 1
