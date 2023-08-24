@@ -21,12 +21,13 @@ app = Flask(__name__)
 # ---------------------------------------------------------
 # App configuration
 app.config.from_file('config.json', load=json.load)
-logging.basicConfig(
-    # level=logging.DEBUG,
-    # filename='log.txt',
-    # filemode='a',
-    # format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
-)
+if not app.debug:
+    logging.basicConfig(
+        level=logging.DEBUG,
+        filename='log.txt',
+        filemode='a',
+        format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
+    )
 
 # Creating server session to store account info of users that didn't complete the sign up
 Session(app)
@@ -59,7 +60,7 @@ def download_papers():
         get_papers(yesterday)
 
 # This prevents scheduling the function twice in the debug mode. More info: https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
-if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+if not app.debug and os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
     scheduler = BackgroundScheduler()
     # Download papers everyday at 00:30 AM in arxiv timezone (they work in 24 hour cycles)
     scheduler.add_job(download_papers, trigger="cron", hour=0, minute=30, timezone=ARXIV_TIMEZONE)
@@ -208,19 +209,19 @@ def home_page():
     # Filtering the results by time period
     match time_option:
         case 0:
-            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(days=2)).all()
+            papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(days=2)).all()
         case 1:
-            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=1)).all()
+            papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=1)).all()
         case 2:
-            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=2)).all()
+            papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=2)).all()
         case 3:
-            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=4)).all()
+            papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=4)).all()
         case 4:
-            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=13)).all()
+            papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=13)).all()
         case 5:
-            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=26)).all()
+            papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=26)).all()
         case 6:
-            papers = Paper.query.filter(Paper.submited_date >= datetime.now() - timedelta(weeks=52)).all()
+            papers = Paper.query.filter(Paper.updated_date >= datetime.now() - timedelta(weeks=52)).all()
         case _:
             flash("Wrong URL")
             return redirect(url_for('home_page'))

@@ -132,7 +132,6 @@ def get_papers(starting_date, debug=False):
             # Getting the data from the API response
             pdf_link = article['links'][1]['href']
             site_link = article['links'][0]['href']
-            submited_date = dateutil.parser.isoparse(article['published'])
             title = article['title']
             abstract = article['summary']
             authors = ", ".join(map(lambda x: x['name'], article['authors']))
@@ -173,7 +172,6 @@ def get_papers(starting_date, debug=False):
                     popularity=5,
                     vector = dict(),
                     updated_date=updated_date,
-                    submited_date=submited_date
                 )
                 db.session.add(new_paper)
                 try:

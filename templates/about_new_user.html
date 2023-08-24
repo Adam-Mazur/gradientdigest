@@ -8,6 +8,16 @@
     <span>Link to the code</span>
 </a>
 <div class="about-content">
-    Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime mollitia,molestiae quas vel sint commodi repudiandae consequuntur voluptatum laborumnumquam blanditiis harum quisquam eius sed odit fugiat iusto fuga praesentiumoptio, eaque rerum! Provident similique accusantium nemo autem. Veritatisobcaecati tenetur iure eius earum ut molestias architecto voluptate aliquamnihil, eveniet aliquid culpa officia aut! Impedit sit sunt quaerat, odit,tenetur error, harum nesciunt ipsum debitis quas aliquid. Reprehenderit,quia. Quo neque error repudiandae fuga? Ipsa laudantium molestias eos sapiente officiis modi at sunt excepturi expedita sint? Sed quibusdamrecusandae alias error harum maxime adipisci amet laborum. Perspiciatis minima nesciunt dolorem! Officiis iure rerum voluptates a cumque velit quibusdam sed amet tempora. Sit laborum ab, eius fugit doloribus tenetur fugiat, temporibus enim commodi iusto libero magni deleniti quod quam consequuntur! Commodi minima excepturi repudiandae velit hic maximedoloremque. Quaerat provident commodi consectetur veniam similique ad earum omnis ipsum saepe, voluptas, hic voluptates pariatur est explicabo fugiat, dolorum eligendi quam cupiditate excepturi mollitia maiores labore suscipit quas? Nulla, placeat. Voluptatem quaerat non architecto ab laudantiummodi minima sunt esse temporibus sint culpa, recusandae aliquam numquam totam ratione voluptas quod exercitationem fuga. Possimus quis earum veniam quasi aliquam eligendi, placeat qui corporis!
+    <h1> Overview </h1>
+    This is a simple vector space recommender system based on td-idf that retrieves the most recent AI/machine learning papers from the arXiv website and sorts them by their similarity to the papers that you've liked. Project inspired by <a href="https://github.com/karpathy">Andrej Karpathy's</a> <a href="https://arxiv-sanity-lite.com/">arxiv-sanity-lite</a> and this <a href="https://users.ics.forth.gr/~potamias/mlnia/paper_6.pdf">paper</a>.
+    <h1> Architecture </h1>
+    The profile vectors are computed from the PDFs of the papers rather than just their abstracts. The background scheduler sends requests to the arXiv API every 24 hours, bacause the review process operates in daily cycles. Users' profile vectors are updated with a fixed constant when a new paper is liked. The website is powered by Flask, and uses <a href="https://scikit-learn.org/stable/">scikit-learn</a> for td-idf computations.   
+    <h1> Upcoming updates </h1>
+    <ul>
+        <li>Email newsletter</li>
+        <li>Summarizing papers with generative AI</li>
+        <li>Finding similar articles</li>
+        <li>Reading lists</li>
+    </ul>
 </div>
 {% endblock %}
