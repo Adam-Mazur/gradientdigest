@@ -5,3 +5,4 @@ log.txt
 config.json
 /instance
 /flask_session
+db_url.txt

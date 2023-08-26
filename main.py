@@ -24,12 +24,11 @@ app.config.from_file('config.json', load=json.load)
 if not app.debug:
     logging.basicConfig(
         level=logging.DEBUG,
-        filename='log.txt',
-        filemode='a',
         format='%(asctime)s | %(filename)s:%(lineno)s:%(levelname)s | %(message)s'
     )
 
 # Creating server session to store account info of users that didn't complete the sign up
+app.config["SESSION_SQLALCHEMY"] = db
 Session(app)
 
 db.init_app(app)
@@ -47,7 +46,7 @@ def user_loader(user_id):
 # Remove session variables when logging out, it prevents someone from using a loophole to login without password through interests page
 @user_logged_out.connect
 def remove_session(*e, **extra):
-    session['email'] = ""
+    session.pop('email', None)
 
 # ---------------------------------------------------------
 # Scheduling the arXiv scraper
@@ -142,7 +141,7 @@ LABELS = [
 
 @app.route('/interests', methods=['GET', 'POST'])
 def interests():
-    if not session['email']:
+    if 'email' not in session:
         flash("You cannot access this page")
         return redirect(url_for('login')) 
     if request.method == 'POST':
@@ -168,7 +167,7 @@ def interests():
                 db.session.rollback()
                 flash("Something went wrong, try again")
             login_user(user, remember=True)
-            session['email'] = ""
+            session.pop('email', None)
             return redirect(url_for('home_page', page=1))
 
     return render_template("interests.html", interests_form=LABELS)
@@ -346,7 +345,7 @@ def logout():
 # Their email needs to be deleted from the session, because that's the way the server remembers them.  
 @app.route('/logout-interest')
 def logout_interests():
-    session['email'] = ""
+    session.pop('email', None)
     flash("Logged out successfully")
     return redirect(url_for("login"))
 

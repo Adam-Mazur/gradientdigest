@@ -5,7 +5,7 @@ db = SQLAlchemy()
 table = db.Table(
     'table',
     db.Column('paper_id', db.Integer, db.ForeignKey('paper.id'), primary_key=True),
-    db.Column('user_email', db.Integer, db.ForeignKey('user.email'), primary_key=True)
+    db.Column('user_email', db.String(320), db.ForeignKey('user.email'), primary_key=True)
 )
 
 class Paper(db.Model):
