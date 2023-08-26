@@ -9,12 +9,13 @@ from arxiv_scraper import get_papers, vectorizer
 from datetime import datetime, timedelta, timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 from recommender import update_user_profile, cosine
+from math import ceil
+import start_up
 import logging
 import bcrypt
 import json
 import atexit
 import os
-from math import ceil
 
 app = Flask(__name__)
 
