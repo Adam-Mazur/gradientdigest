@@ -15,7 +15,6 @@
                 <img class="dropdown-icon-small" src="{{ url_for('static', filename='images/arrow-drop-down-small.svg') }}"> 
             </button>
             <div class="dropdown-content dropdown-content-small">
-                <a href="{{ url_for('search', page=current_page, query=query, sort='Popularity') }}">Popularity</a>
                 <a href="{{ url_for('search', page=current_page, query=query, sort='Relevance') }}">Relevance</a>
                 <a href="{{ url_for('search', page=current_page, query=query, sort='Date') }}">Date</a>
             </div>
@@ -47,20 +46,7 @@
         <div class="indicator" style="background-color: #69B34C;"></div>
         {% endif %}
         <span class="article-meta">Relevance</span>
-        {% if paper.popularity == 5 %}
-        <div class="indicator" style="background-color: #FF0D0D;"></div>
-        {% elif paper.popularity == 4 %}
-        <div class="indicator" style="background-color: #FF4E11;"></div>
-        {% elif paper.popularity == 3 %}
-        <div class="indicator" style="background-color: #FF8E15;"></div>
-        {% elif paper.popularity == 2 %}
-        <div class="indicator" style="background-color: #FAB733;"></div>
-        {% elif paper.popularity == 1 %}
-        <div class="indicator" style="background-color: #ACB334;"></div>
-        {% elif paper.popularity == 0 %}
-        <div class="indicator" style="background-color: #69B34C;"></div>
-        {% endif %}
-        <span class="article-meta">Popularity</span>
+
     </div>
     <div class="article-sidebar">
         <input type="checkbox" id="{{ paper.id }}" class="like-button" {% if current_user in paper.users%} checked {% endif %}>

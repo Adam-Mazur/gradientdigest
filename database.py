@@ -15,7 +15,6 @@ class Paper(db.Model):
     abstract = db.Column(db.String(1920), nullable=False)
     pdf_link = db.Column(db.String(40))
     site_link = db.Column(db.String(40), nullable=False)
-    popularity = db.Column(db.Integer)
     vector = db.Column(db.PickleType, nullable=False)
     updated_date = db.Column(db.DateTime, nullable=False)
 

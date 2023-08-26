@@ -169,7 +169,6 @@ def get_papers(starting_date, debug=False):
                     abstract=abstract,
                     pdf_link=pdf_link,
                     site_link=site_link,
-                    popularity=5,
                     vector = dict(),
                     updated_date=updated_date,
                 )

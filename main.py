@@ -233,8 +233,6 @@ def home_page():
     match sort_option:
         case "Relevance":
             papers.sort(key=lambda x: x[1], reverse=True)
-        case "Popularity":
-            papers.sort(key=lambda x: x[0].popularity, reverse=True)
         case "Date":
             papers.sort(key=lambda x: x[0].updated_date, reverse=True)
         case _:
@@ -300,8 +298,6 @@ def search():
     match sort_option:
         case "Relevance":
             papers.sort(key=lambda x: x[1], reverse=True)
-        case "Popularity":
-            papers.sort(key=lambda x: x[0].popularity, reverse=True)
         case "Date":
             papers.sort(key=lambda x: x[0].updated_date, reverse=True)
         case _:

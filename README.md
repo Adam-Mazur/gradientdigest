@@ -9,12 +9,12 @@ The profile vectors are computed from the PDFs of the papers rather than just th
 - Reading lists
 # Photos
 ### Home Page
-![Home page](Screenshot_home_page.png)
+![Home page](screen_shots/Screenshot_home_page.png)
 ### Search Page
-![Search page](Screenshot_search.png)
+![Search page](screen_shots/Screenshot_search.png)
 ### Login Page
-![Login page](Screenshot_login.png)
+![Login page](screen_shots/Screenshot_login.png)
 ### Sign Up Page
-![Sign up page](Screenshot_sign_up.png)
+![Sign up page](screen_shots/Screenshot_sign_up.png)
 ### Interests Page
-![Interests page](Screenshot_interests.png)
+![Interests page](screen_shots/Screenshot_interests.png)
