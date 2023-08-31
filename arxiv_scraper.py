@@ -17,7 +17,6 @@ warnings.filterwarnings("ignore")
 def get_wordnet_pos(word):
     """Map POS tag to first character lemmatize() accepts"""
     tag = pos_tag([word])[0][1][0].upper()
-    # TODO: Make sure this works
     tag_dict = {
         "J": wordnet.ADJ,
         "N": wordnet.NOUN,

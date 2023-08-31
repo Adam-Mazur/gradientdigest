@@ -10,7 +10,6 @@ from datetime import datetime, timedelta, timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 from recommender import update_user_profile, cosine
 from math import ceil
-import start_up
 import logging
 import bcrypt
 import json
@@ -53,6 +52,7 @@ def remove_session(*e, **extra):
 # Scheduling the arXiv scraper
 ARXIV_TIMEZONE = timezone.utc
 def download_papers():
+    """Download all the papers released since yesterday."""
     with app.app_context():
         today = datetime.now(ARXIV_TIMEZONE)
         yesterday = today - timedelta(days=1)

@@ -1,5 +1,8 @@
 def update_user_profile(user_vector, document_vector, alpha, beta, gamma):
-    # P' = alpha * P + beta * D
+    """Takes the user's profle (user's vector) and updates it with the document vector using the formula: \n
+    P' = alpha * P + beta * D.
+    """
+    
     for key in user_vector:
         user_vector[key] *= alpha
     for key in document_vector:
@@ -14,6 +17,7 @@ def update_user_profile(user_vector, document_vector, alpha, beta, gamma):
     return user_vector
 
 def cosine(vector1, vector2):
+    """Calculates the cosine measure between two vectors."""
     vector1_length = 0
     vector2_length = 0
     dot_product = 0

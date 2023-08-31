@@ -5,4 +5,5 @@ log.txt
 config.json
 /instance
 /flask_session
-config_production.json
+config_azure.json
+config_pythonanywhere.json

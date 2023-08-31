@@ -1,3 +1,4 @@
+"""Create the database"""
 from main import app, db
 
 with app.app_context():
